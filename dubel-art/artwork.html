@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DUBEL ART</title>
+<meta name="description" content="Artwork detail — DUBEL ART private sale.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="site-chrome"></div>
+
+<main class="wrap" id="main">
+  <a class="back" href="index.html">← Back to the collection</a>
+  <div id="work"></div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  var D = window.DubelArt;
+  var data = D.loadData();
+  var site = data.site, works = data.works;
+  D.mountChrome(site);
+
+  function param(n){return new URLSearchParams(location.search).get(n);}
+  var id = param("id");
+  var w = works.filter(function(x){return String(x.slug)===String(id) || String(x.id)===String(id);})[0];
+
+  var root = document.getElementById("work");
+  if(!w){
+    root.innerHTML = "<div class='empty'>This work could not be found. <a href='index.html' style='color:var(--red)'>Return to the collection.</a></div>";
+    return;
+  }
+
+  document.title = w.artist + " — " + w.title + " · DUBEL ART";
+
+  function block(title, inner){
+    if(!inner) return "";
+    return "<div class='prose-block'><h3>"+D.esc(title)+"</h3>"+inner+"</div>";
+  }
+  function list(arr){
+    if(!arr || !arr.length) return "";
+    return "<ul class='prov'>"+arr.map(function(i){return "<li>"+D.esc(i)+"</li>";}).join("")+"</ul>";
+  }
+  function plainList(arr){
+    if(!arr || !arr.length) return "";
+    return "<ul class='prov' style='counter-reset:none'>"+arr.map(function(i){return "<li style='padding-left:18px'>— "+D.esc(i)+"</li>";}).join("")+"</ul>";
+  }
+
+  var st = D.statusInfo(w);
+  var spec = "";
+  function row(k,v){ if(v) spec += "<div><dt>"+k+"</dt><dd>"+D.esc(v)+"</dd></div>"; }
+  row("Medium", w.medium);
+  row("Dimensions", w.dimensions);
+  row("Framed", w.framed);
+  row("Edition", w.edition);
+  row("Year", w.year);
+  row("Signature", w.signature);
+  row("Condition", w.condition);
+
+  var priceBig = (w.priceMode==="on_request") ? "Price on request" :
+                 (st.key==="sold") ? "Sold" : (w.price || "Price on request");
+
+  root.innerHTML =
+    "<div class='work__hero'>"+
+      "<div class='card__spec' style='color:var(--red)'>"+D.esc(w.medium||"")+"</div>"+
+      "<h1 class='work__artist'>"+D.esc(w.artist)+"</h1>"+
+      "<div class='work__titleline'><span class='work__title'>"+D.esc(w.title)+"</span>"+
+        (w.year?"<span class='work__year'>"+D.esc(w.year)+"</span>":"")+"</div>"+
+    "</div>"+
+    "<div class='work__grid'>"+
+      "<div class='work__imgwrap'><img src='"+D.esc(w.image)+"' alt='"+D.esc(w.artist+", "+w.title)+"'></div>"+
+      "<aside class='panel'>"+
+        "<div class='panel__pricelbl'>"+(w.priceMode==="on_request"||st.key==="sold"?"&nbsp;":"Asking price")+"</div>"+
+        "<div class='panel__price'>"+D.esc(priceBig)+"</div>"+
+        "<span class='panel__status panel__status--"+st.key+"'>"+st.label+"</span>"+
+        ((st.key==="available")?
+          "<a class='btn btn--block' href='contact.html?work="+encodeURIComponent(w.slug||w.id)+"'>Inquire about this work</a>":
+          (st.key==="reserved"?
+            "<a class='btn btn--block btn--ghost' href='contact.html?work="+encodeURIComponent(w.slug||w.id)+"'>Join the waiting list</a>":
+            "")) +
+        "<dl class='spec-list'>"+spec+"</dl>"+
+        (site.priceNote ? "<p class='panel__note'>"+D.esc(site.priceNote)+"</p>" : "")+
+      "</aside>"+
+    "</div>"+
+    block("About the work", w.description ? "<p>"+D.esc(w.description)+"</p>" : "") +
+    "<div class='cols2'>"+
+      block("Provenance", list(w.provenance)) +
+      "<div>"+
+        block("Exhibited", plainList(w.exhibitions)) +
+        block("Literature", plainList(w.publications)) +
+      "</div>"+
+    "</div>";
+
+  // more from the collection
+  var others = works.filter(function(x){return x!==w;}).slice(0,3);
+  if(others.length){
+    var more = "<section class='more'><div class='section__head'><h2 class='section__title'>More works</h2>"+
+      "<a class='section__count' href='index.html' style='color:var(--red)'>View all →</a></div><div class='grid'>";
+    others.forEach(function(o){
+      var ost=D.statusInfo(o);
+      more += "<article class='card "+(ost.key==="sold"?"card--sold":"")+"'><a href='artwork.html?id="+encodeURIComponent(o.slug||o.id)+"'>"+
+        "<div class='card__frame'><img loading='lazy' src='"+D.esc(o.thumb||o.image)+"' alt='"+D.esc(o.artist)+"'></div>"+
+        "<div class='card__meta'><div class='card__artist'>"+D.esc(o.artist)+"</div>"+
+        "<div class='card__title'>"+D.esc(o.title)+"</div></div></a></article>";
+    });
+    more += "</div></section>";
+    root.insertAdjacentHTML("beforeend", more);
+  }
+})();
+</script>
+</body>
+</html>
