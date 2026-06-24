@@ -246,3 +246,47 @@ button{font-family:inherit;cursor:pointer}
   .foot__grid{grid-template-columns:1fr}
   .hero__head .l3::before{height:4px}
 }
+
+/* ---------- enquiry CTA (home) ---------- */
+.cta{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);padding:40px 44px}
+.cta__eyebrow{font-family:var(--util);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+.cta__title{font-family:var(--display);font-size:clamp(30px,4vw,46px);text-transform:uppercase;line-height:.92;margin:0 0 12px}
+.cta__body{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-soft);margin:0;max-width:60ch}
+.btn--lg{padding:18px 34px;font-size:13.5px}
+
+/* ---------- contact page ---------- */
+.contact__grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:54px;align-items:start}
+.contact__intro .hero__body{margin-bottom:18px}
+.contact__work{background:var(--card);border:1px solid var(--line);padding:18px 20px;margin-top:24px}
+.contact__work .cw__lbl{font-family:var(--util);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.contact__work .cw__name{font-family:var(--display);font-size:22px;text-transform:uppercase;line-height:1;margin-top:6px}
+.contact__work .cw__title{font-family:var(--serif);font-style:italic;color:var(--ink-soft);margin-top:4px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
+.form .full{grid-column:1 / -1}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-family:var(--util);font-weight:700;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.field label .req{color:var(--red)}
+.field input,.field select,.field textarea{
+  font-family:var(--body);font-size:15px;color:var(--ink);background:var(--paper-2);
+  border:1.5px solid var(--line-strong);border-radius:2px;padding:13px 14px;width:100%;transition:border-color .15s ease}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.field textarea{resize:vertical;min-height:120px}
+.form__hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+.form__actions{grid-column:1 / -1;display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:4px}
+.form__note{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--muted);margin:0}
+.form__msg{grid-column:1 / -1;padding:16px 18px;border-radius:2px;font-family:var(--util);font-weight:600;font-size:14px;display:none}
+.form__msg.show{display:block}
+.form__msg--ok{background:rgba(60,81,65,.12);border:1px solid var(--green);color:var(--green)}
+.form__msg--err{background:rgba(197,57,43,.1);border:1px solid var(--red);color:var(--red-deep)}
+.contact__sent{display:none;padding:46px 0}
+.contact__sent.show{display:block}
+.contact__sent h2{font-family:var(--display);font-size:clamp(34px,5vw,60px);text-transform:uppercase;line-height:.9;margin:0 0 14px}
+.contact__sent p{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink-soft);max-width:56ch}
+@media(max-width:980px){
+  .contact__grid{grid-template-columns:1fr;gap:30px}
+  .cta{padding:30px}
+}
+@media(max-width:620px){
+  .form{grid-template-columns:1fr}
+}

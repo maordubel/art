@@ -78,13 +78,13 @@
     "<div class='work__grid'>"+
       "<div class='work__imgwrap'><img src='"+D.esc(w.image)+"' alt='"+D.esc(w.artist+", "+w.title)+"'></div>"+
       "<aside class='panel'>"+
-        "<div class='panel__pricelbl'>"+(w.priceMode==="on_request"||st.key==="sold"?"&nbsp;":"Guide price")+"</div>"+
+        "<div class='panel__pricelbl'>"+(w.priceMode==="on_request"||st.key==="sold"?"&nbsp;":"Asking price")+"</div>"+
         "<div class='panel__price'>"+D.esc(priceBig)+"</div>"+
         "<span class='panel__status panel__status--"+st.key+"'>"+st.label+"</span>"+
         ((st.key==="available")?
-          "<a class='btn btn--block' href='"+D.inquireHref(site,w)+"'>Inquire about this work</a>":
+          "<a class='btn btn--block' href='contact.html?work="+encodeURIComponent(w.slug||w.id)+"'>Inquire about this work</a>":
           (st.key==="reserved"?
-            "<a class='btn btn--block btn--ghost' href='"+D.inquireHref(site,w)+"'>Join the waiting list</a>":
+            "<a class='btn btn--block btn--ghost' href='contact.html?work="+encodeURIComponent(w.slug||w.id)+"'>Join the waiting list</a>":
             "")) +
         "<dl class='spec-list'>"+spec+"</dl>"+
       "</aside>"+

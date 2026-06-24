@@ -241,7 +241,7 @@
       "<div class='f2'>"+field("Medium","medium",w.medium)+field("Dimensions","dimensions",w.dimensions)+"</div>"+
       "<div class='f2'>"+field("Framed size","framed",w.framed)+field("Edition","edition",w.edition)+"</div>"+
       "<div class='f2'>"+
-        field("Price display","price",w.price,{hint:"e.g. €4,500 – 5,500 or CHF 12,000"})+
+        field("Asking price","price",w.price,{hint:"Euro only, single figure, e.g. €5,500"})+
         field("Price mode","priceMode",w.priceMode,{type:"select",options:[["value","Show price"],["on_request","Price on request"]]})+
       "</div>"+
       "<div class='f2'>"+field("Signature","signature",w.signature)+field("Condition","condition",w.condition)+"</div>"+
@@ -324,8 +324,7 @@
     body.innerHTML=
       "<div class='f2'>"+field("Wordmark — part 1","wordmarkA",s.wordmarkA)+field("Wordmark — part 2 (red)","wordmarkB",s.wordmarkB)+"</div>"+
       field("Tagline","tagline",s.tagline)+
-      "<div class='f3'>"+field("Email","email",s.email)+field("Phone","phone",s.phone)+field("Site URL","url",s.url)+"</div>"+
-      field("Address","address",s.address)+
+      "<div class='f2'>"+field("Site URL","url",s.url)+field("Contact form access key (Web3Forms)","formAccessKey",s.formAccessKey,{hint:"Create a free key at web3forms.com tied to your own inbox, then paste it here. Your email address is never shown to visitors."})+"</div>"+
       field("Ticker items (one per line)","ticker",(s.ticker||[]).join("\n"),{type:"textarea"})+
       field("Hero eyebrow","heroEyebrow",s.heroEyebrow)+
       "<div class='f3'>"+field("Hero line 1","heroLine1",s.heroLine1)+field("Hero line 2","heroLine2",s.heroLine2)+field("Hero line 3 (red)","heroLine3",s.heroLine3)+"</div>"+
@@ -338,7 +337,7 @@
     var body=document.getElementById("editor-body");
     function v(n){var el=body.querySelector("[name="+n+"]");return el?el.value.trim():"";}
     var s=db.site;
-    ["wordmarkA","wordmarkB","tagline","email","phone","url","address","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","adminPass"]
+    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","adminPass"]
       .forEach(function(k){s[k]=v(k);});
     s.ticker=v("ticker").split("\n").map(function(x){return x.trim();}).filter(Boolean);
     s.name=(s.wordmarkA||"")+" "+(s.wordmarkB||"");

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enquire — DUBEL ART</title>
+<meta name="description" content="Enquire about a work from the Dubel Team Art Department. Private sale, by appointment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="site-chrome"></div>
+
+<main class="wrap" id="main">
+  <a class="back" href="index.html">&larr; Back to the collection</a>
+
+  <div class="work__hero" style="margin-top:8px">
+    <div class="card__spec" style="color:var(--red)">Enquiries</div>
+    <h1 class="work__artist">Make an enquiry</h1>
+    <div class="work__titleline"><span class="work__title">Private sale &middot; By appointment</span></div>
+  </div>
+
+  <div class="contact__grid">
+    <div class="contact__intro">
+      <p class="hero__body">Tell us which work interests you and how best to reach you. A member of the Dubel Team Art Department will respond personally with availability, condition reports and acquisition details. All enquiries are handled in confidence.</p>
+      <div id="work-card"></div>
+    </div>
+
+    <div>
+      <div id="form-wrap">
+        <form id="enquiry" class="form" novalidate>
+          <div class="field"><label>Full name <span class="req">*</span></label><input name="name" autocomplete="name" required></div>
+          <div class="field"><label>Email <span class="req">*</span></label><input type="email" name="email" autocomplete="email" required></div>
+          <div class="field"><label>Phone <span class="req">*</span></label><input name="phone" autocomplete="tel" required></div>
+          <div class="field"><label>Country <span class="req">*</span></label><input name="country" autocomplete="country-name" required></div>
+          <div class="field"><label>City <span class="req">*</span></label><input name="city" autocomplete="address-level2" required></div>
+          <div class="field"><label>Work of interest</label><select id="artwork" name="artwork"></select></div>
+          <div class="field full"><label>Message</label><textarea name="message" placeholder="Anything you would like us to know..."></textarea></div>
+
+          <input type="checkbox" name="botcheck" class="form__hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+          <div class="form__msg" id="msg" role="alert"></div>
+          <div class="form__actions">
+            <button type="submit" class="btn btn--lg" id="submit">Send enquiry</button>
+            <p class="form__note">Your details are sent privately to the Art Department. We never share them.</p>
+          </div>
+        </form>
+      </div>
+
+      <div class="contact__sent" id="sent">
+        <h2>Thank you.</h2>
+        <p>Your enquiry has reached the Dubel Team Art Department. We will be in touch shortly.
+           <a href="index.html" style="color:var(--red)">Return to the collection &rarr;</a></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script>
+/* URLSearchParams polyfill for very old browsers */
+if(!window.URLSearchParams){window.URLSearchParams=function(q){q=(q||"").replace(/^\?/,"");this.get=function(k){var a=q.split("&");for(var i=0;i<a.length;i++){var kv=a[i].split("=");if(decodeURIComponent(kv[0])===k)return decodeURIComponent((kv[1]||"").replace(/\+/g," "));}return null;};};}
+</script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  var D = window.DubelArt;
+  var data = D.loadData();
+  var site = data.site, works = data.works;
+  D.mountChrome(site);
+
+  function param(n){ return new URLSearchParams(location.search).get(n); }
+  var slug = param("work");
+
+  var sel = document.getElementById("artwork");
+  var opts = "<option value=''>General enquiry</option>";
+  works.forEach(function(w){
+    var label = w.artist + " — " + w.title + (w.year ? " (" + w.year + ")" : "");
+    var val = w.slug || w.id;
+    opts += "<option value='" + D.esc(val) + "'" + (String(val) === String(slug) ? " selected" : "") + ">" + D.esc(label) + "</option>";
+  });
+  sel.innerHTML = opts;
+
+  function currentWork(){
+    var v = sel.value;
+    return works.filter(function(w){ return String(w.slug || w.id) === String(v); })[0];
+  }
+
+  var card = document.getElementById("work-card");
+  function renderCard(){
+    var w = currentWork();
+    if(!w){ card.innerHTML = ""; return; }
+    card.innerHTML =
+      "<div class='contact__work'>" +
+        "<div class='cw__lbl'>Selected work</div>" +
+        "<div class='cw__name'>" + D.esc(w.artist) + "</div>" +
+        "<div class='cw__title'>" + D.esc(w.title) + (w.year ? ", " + D.esc(w.year) : "") + "</div>" +
+        "<div class='card__spec' style='margin-top:8px'>" +
+          D.esc([w.medium, w.dimensions].filter(Boolean).join(" · ")) +
+          (w.priceMode === "on_request" ? "" : " — " + D.esc(D.priceText(w))) +
+        "</div>" +
+      "</div>";
+  }
+  sel.addEventListener("change", renderCard);
+  renderCard();
+
+  var form = document.getElementById("enquiry");
+  var msg  = document.getElementById("msg");
+  var btn  = document.getElementById("submit");
+
+  function showMsg(text, ok){
+    msg.textContent = text;
+    msg.className = "form__msg show " + (ok ? "form__msg--ok" : "form__msg--err");
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    if (form.botcheck && form.botcheck.checked) return; /* honeypot: silently drop bots */
+
+    var required = ["name","email","phone","country","city"];
+    for (var i=0;i<required.length;i++){
+      if(!form[required[i]].value.trim()){
+        showMsg("Please complete all required fields (name, email, phone, country, city).", false);
+        form[required[i]].focus();
+        return;
+      }
+    }
+
+    var w = currentWork();
+    var subject = "DUBEL ART — " + (w ? ("Enquiry: " + w.artist + ", " + w.title) : "General enquiry");
+
+    if(!site.formAccessKey){
+      showMsg("This enquiry form is not connected yet. (Site owner: add your Web3Forms access key in admin → Site settings.)", false);
+      return;
+    }
+
+    var payload = {
+      access_key: site.formAccessKey,
+      subject: subject,
+      from_name: form.name.value.trim() + " — DUBEL ART",
+      replyto: form.email.value.trim(),
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      phone: form.phone.value.trim(),
+      country: form.country.value.trim(),
+      city: form.city.value.trim(),
+      work_of_interest: w ? (w.artist + " — " + w.title + (w.year ? " (" + w.year + ")" : "")) : "General enquiry",
+      artwork_reference: w ? (w.slug || w.id) : "",
+      asking_price: w ? D.priceText(w) : "",
+      message: form.message.value.trim()
+    };
+
+    btn.disabled = true;
+    var oldLabel = btn.textContent;
+    btn.textContent = "Sending…";
+
+    fetch(site.formEndpoint || "https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if (res && res.success){
+        document.getElementById("form-wrap").style.display = "none";
+        document.getElementById("sent").className = "contact__sent show";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        showMsg((res && res.message) ? res.message : "Something went wrong. Please try again.", false);
+        btn.disabled = false; btn.textContent = oldLabel;
+      }
+    })
+    .catch(function(){
+      showMsg("Network error. Please try again in a moment.", false);
+      btn.disabled = false; btn.textContent = oldLabel;
+    });
+  });
+})();
+</script>
+</body>
+</html>

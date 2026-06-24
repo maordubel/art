@@ -55,8 +55,21 @@
     <div class="wrap">
       <div class="section__head"><h2 class="section__title">About</h2></div>
       <div class="cols2">
-        <p class="hero__body" style="font-size:19px">A private collection of modern and contemporary art assembled across Europe and the United States — early-twentieth-century modernism, post-war abstraction, and contemporary mixed-media and sculpture.</p>
-        <p style="font-family:var(--serif);font-style:italic;font-size:18px;color:var(--ink-soft)">Every work is offered with documented provenance and, where available, exhibition and publication history. Condition reports, additional images and shipping quotes are available on request. To arrange a viewing or reserve a work, please get in touch.</p>
+        <p class="hero__body" style="font-size:19px">The Dubel Team Art Department curates and privately places modern and contemporary works — early-twentieth-century European modernism, post-war abstraction, and contemporary mixed-media and sculpture. Each piece is selected for quality, rarity and lasting significance.</p>
+        <p style="font-family:var(--serif);font-style:italic;font-size:18px;color:var(--ink-soft)">Every work is held in our care and offered with documented provenance and, where available, exhibition and publication history. Condition reports, additional images and shipping quotes are provided on request. Acquisitions and viewings are arranged privately, by appointment, for a discerning international clientele.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="enquire" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="cta">
+        <div>
+          <div class="cta__eyebrow">Private sale &middot; By appointment</div>
+          <h2 class="cta__title">Enquire about a work</h2>
+          <p class="cta__body">Tell us which piece interests you and how to reach you. A member of the Art Department will respond personally with availability, condition and acquisition details.</p>
+        </div>
+        <a class="btn btn--lg" href="contact.html">Make an enquiry</a>
       </div>
     </div>
   </section>
@@ -100,7 +113,7 @@
             "<div class='card__artist'>"+D.esc(w.artist)+"</div>"+
             "<div class='card__title'>"+D.esc(w.title)+yr+"</div>"+
             "<div class='card__spec'>"+D.esc([w.medium,w.dimensions].filter(Boolean).join(" · "))+"</div>"+
-            "<div class='card__price'><span class='lbl'>"+(w.priceMode==="on_request"?"":"Guide")+"</span>"+D.esc(D.priceText(w))+"</div>"+
+            "<div class='card__price'><span class='lbl'>"+(w.priceMode==="on_request"?"":"Asking price")+"</span>"+D.esc(D.priceText(w))+"</div>"+
           "</div>"+
         "</a>"+
       "</article>"

@@ -37,19 +37,6 @@
     return w.price;
   }
 
-  function inquireHref(site, w) {
-    var subj = "Inquiry — " + (w.artist || "") + ", " + (w.title || "");
-    var body =
-      "Hello,\n\nI would like more information about the following work:\n\n" +
-      (w.artist || "") + " — " + (w.title || "") + (w.year ? " (" + w.year + ")" : "") + "\n" +
-      (w.medium || "") + (w.dimensions ? ", " + w.dimensions : "") + "\n" +
-      "Reference: " + (w.slug || w.id) + "\n\n" +
-      "Please send a condition report and availability.\n\nThank you.";
-    return "mailto:" + (site.email || "") +
-      "?subject=" + encodeURIComponent(subj) +
-      "&body=" + encodeURIComponent(body);
-  }
-
   // --- site chrome ---------------------------------------------------------
   function tickerHtml(site) {
     var items = (site.ticker && site.ticker.length ? site.ticker : ["PRIVATE SALE"]);
@@ -70,8 +57,8 @@
         '<nav class="nav">' +
           '<a href="index.html">The Collection</a>' +
           '<a href="index.html#about">About</a>' +
-          '<a href="index.html#contact">Contact</a>' +
-          '<a class="btn" href="mailto:' + esc(site.email || "") + '">Inquire</a>' +
+          '<a href="contact.html">Contact</a>' +
+          '<a class="btn" href="contact.html">Inquire</a>' +
         "</nav>" +
       "</div></header>"
     );
@@ -83,14 +70,15 @@
         '<div class="foot__grid">' +
           "<div><div class='foot__name'>" + esc(site.wordmarkA || "DUBEL") + " <b>" + esc(site.wordmarkB || "ART") + "</b></div>" +
             "<div class='foot__tag'>" + esc(site.tagline || "") + "</div></div>" +
-          "<div><p class='foot__h'>Inquiries</p>" +
-            "<p><a href='mailto:" + esc(site.email || "") + "'>" + esc(site.email || "") + "</a></p>" +
-            "<p><a href='tel:" + esc((site.phone || "").replace(/\s/g, "")) + "'>" + esc(site.phone || "") + "</a></p></div>" +
-          "<div><p class='foot__h'>Location</p><p>" + esc(site.address || "") + "</p></div>" +
+          "<div><p class='foot__h'>Enquiries</p>" +
+            "<p><a href='contact.html'>Make an enquiry &rarr;</a></p>" +
+            "<p>Private viewings by appointment.</p></div>" +
+          "<div><p class='foot__h'>The Department</p>" +
+            "<p>Private sale</p><p>Worldwide shipping</p><p>Provenance on request</p></div>" +
         "</div>" +
         "<div class='foot__bottom'>" +
-          "<span>© " + new Date().getFullYear() + " " + esc(site.name || "DUBEL ART") + " — " + esc(site.url || "") + "</span>" +
-          "<a href='admin.html'>Manage catalogue</a>" +
+          "<span>© " + new Date().getFullYear() + " " + esc(site.name || "DUBEL ART") + " — Dubel Team, Art Department</span>" +
+          "<span>" + esc(site.url || "") + "</span>" +
         "</div>" +
       "</div></footer>"
     );
@@ -114,6 +102,6 @@
 
   window.DubelArt = {
     loadData: loadData, esc: esc, statusInfo: statusInfo,
-    priceText: priceText, inquireHref: inquireHref, mountChrome: mountChrome
+    priceText: priceText, mountChrome: mountChrome
   };
 })();
