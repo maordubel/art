@@ -14,7 +14,17 @@
       var raw = localStorage.getItem(STORE_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
-        if (parsed && parsed.works) data = parsed;
+        if (parsed && parsed.works) {
+          var fileV  = (seed.site   && +seed.site.dataVersion)   || 0;
+          var savedV = (parsed.site && +parsed.site.dataVersion) || 0;
+          if (fileV > savedV) {
+            // a newer catalogue was published (data.js) — adopt it and refresh the local copy
+            data = seed;
+            try { localStorage.setItem(STORE_KEY, JSON.stringify(seed)); } catch (e2) {}
+          } else {
+            data = parsed;
+          }
+        }
       }
     } catch (e) { /* sandbox / disabled storage — fall back to seed */ }
     loadedSite = data.site || {};

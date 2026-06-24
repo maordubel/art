@@ -30,7 +30,8 @@ window.SITE = {
   "formEndpoint": "https://api.web3forms.com/submit",
   "formAccessKey": "",
   "priceNote": "All prices are in EUR and exclude shipping, handling, insurance and any taxes or import duties. Final pricing may vary with the buyer's location and local tax treatment.",
-  "priceHiddenLabel": "Contact for price"
+  "priceHiddenLabel": "Contact for price",
+  "dataVersion": 1782293359748
 };
 
 window.ARTWORKS = [

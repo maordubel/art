@@ -70,6 +70,30 @@
   .gate input{width:100%;padding:14px;border:1.5px solid var(--ink);border-radius:2px;font-size:15px;text-align:center;letter-spacing:.1em;margin-bottom:12px}
   .gate .err{color:var(--red);font-family:var(--util);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;height:16px;margin-bottom:8px}
   @media(max-width:640px){.f2,.f3{grid-template-columns:1fr}.row{grid-template-columns:52px 1fr;gap:12px}.row__ctrl{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap}}
+  /* image editor */
+  .ie{position:fixed;inset:0;background:rgba(23,18,11,.78);display:none;z-index:120;overflow:auto;padding:24px}
+  .ie.open{display:flex;align-items:flex-start;justify-content:center}
+  .ie__panel{width:min(720px,96vw);background:var(--paper-2);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);margin:auto}
+  .ie__head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:2px solid var(--ink)}
+  .ie__head h3{font-family:var(--display);font-size:20px;margin:0;text-transform:uppercase}
+  .ie__stage{position:relative;background:#2a2419;display:flex;align-items:center;justify-content:center;
+    min-height:240px;max-height:60vh;overflow:hidden;margin:0;touch-action:none;user-select:none}
+  .ie__stage canvas{display:block;max-width:100%;max-height:60vh}
+  .ie__crop{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(23,18,11,.5);cursor:move;box-sizing:border-box}
+  .ie__crop::before{content:"";position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+    background-size:33.33% 33.33%;pointer-events:none}
+  .ie__h{position:absolute;width:16px;height:16px;background:#fff;border:1px solid var(--ink);border-radius:50%;z-index:2}
+  .ie__h.nw{left:-8px;top:-8px;cursor:nwse-resize}.ie__h.ne{right:-8px;top:-8px;cursor:nesw-resize}
+  .ie__h.sw{left:-8px;bottom:-8px;cursor:nesw-resize}.ie__h.se{right:-8px;bottom:-8px;cursor:nwse-resize}
+  .ie__ctrl{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+  .ie__angle{display:flex;align-items:center;gap:12px}
+  .ie__angle label{font-family:var(--util);font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+  .ie__angle input[type=range]{flex:1}
+  .ie__angle .val{font-family:var(--util);font-weight:700;font-size:13px;min-width:46px;text-align:right}
+  .ie__btns{display:flex;gap:8px;flex-wrap:wrap}
+  .ie__foot{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line)}
+  .mini--dark{border-color:var(--ink);color:var(--ink)} .mini--dark:hover{background:var(--ink);color:var(--paper)}
 </style>
 </head>
 <body>
@@ -133,6 +157,41 @@
 
 <div class="toast" id="toast"></div>
 <input type="file" id="import-file" accept=".js,.json,application/json,text/javascript" style="display:none">
+
+<!-- image editor (crop / rotate) -->
+<div class="ie" id="ie">
+  <div class="ie__panel">
+    <div class="ie__head">
+      <h3>Crop &amp; rotate</h3>
+      <button class="icon" id="ie-close" aria-label="Close">✕</button>
+    </div>
+    <div class="ie__stage" id="ie-stage">
+      <canvas id="ie-canvas"></canvas>
+      <div class="ie__crop" id="ie-crop">
+        <span class="ie__h nw"></span><span class="ie__h ne"></span>
+        <span class="ie__h sw"></span><span class="ie__h se"></span>
+      </div>
+    </div>
+    <div class="ie__ctrl">
+      <div class="ie__angle">
+        <label for="ie-angle">Straighten</label>
+        <input type="range" id="ie-angle" min="-45" max="45" step="1" value="0">
+        <span class="val" id="ie-angle-val">0°</span>
+      </div>
+      <div class="ie__btns">
+        <button class="mini mini--dark" id="ie-rot-l">⟲ 90° left</button>
+        <button class="mini mini--dark" id="ie-rot-r">⟳ 90° right</button>
+        <button class="mini mini--dark" id="ie-crop-reset">Reset crop</button>
+        <button class="mini mini--dark" id="ie-reset">Reset all</button>
+      </div>
+    </div>
+    <div class="ie__foot">
+      <button class="mini" style="border-color:var(--ink);color:var(--ink)" id="ie-cancel">Cancel</button>
+      <button class="btn" id="ie-apply">Apply</button>
+    </div>
+  </div>
+</div>
+
 
 <script src="data.js"></script>
 <script src="app.js"></script>
@@ -249,6 +308,7 @@
           field("Image filename or path","image",w.image,{hint:"e.g. images/your-file.jpg — place the file in /images on your server."})+
           "<label class='mini' style='border-color:var(--ink);color:var(--ink);display:inline-block;cursor:pointer'>Upload image…"+
             "<input type='file' id='ed-upload' accept='image/*' style='display:none'></label>"+
+            " <button type='button' class='mini mini--dark' id='ed-edit' style='display:inline-block'>Crop / rotate</button>"+
         "</div>"+
       "</div>"+
       "<div class='f2'>"+field("Artist","artist",w.artist)+field("Title","title",w.title)+"</div>"+
@@ -271,6 +331,8 @@
     sheet.classList.add("open");
     var up=document.getElementById("ed-upload");
     if(up) up.addEventListener("change",function(e){handleUpload(e.target.files[0]);});
+    var ce=document.getElementById("ed-edit");
+    if(ce) ce.addEventListener("click",function(){ if(window.__openImageEditor) window.__openImageEditor(); });
   }
 
   function newWork(){return {id:null,slug:null,artist:"",title:"",year:"",medium:"",dimensions:"",framed:"",edition:"",
@@ -290,7 +352,7 @@
         document.getElementById("ed-preview").src=thumb;
         document.getElementById("ed-preview").style.visibility="visible";
         document.getElementById("ed-preview").dataset.thumb=thumb;
-        toast("Image embedded for preview");
+        toast("Image added — use “Crop / rotate” to adjust");
       };
       img.src=ev.target.result;
     };
@@ -411,6 +473,119 @@
     };
     r.readAsText(f); e.target.value="";
   });
+
+  // ===== image editor: crop + rotate / straighten =====
+  (function(){
+    var ie=document.getElementById("ie"), cv=document.getElementById("ie-canvas"),
+        cropEl=document.getElementById("ie-crop"), stage=document.getElementById("ie-stage"),
+        angleInput=document.getElementById("ie-angle"), angleVal=document.getElementById("ie-angle-val");
+    if(!ie) return;
+    var base=null, quarter=0, fine=0, curFull=null, curDS=1, rect={x:0,y:0,w:0,h:0};
+
+    function buildBase(img){
+      var max=2000, s=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      var c=document.createElement("canvas");
+      c.width=Math.max(1,Math.round(img.naturalWidth*s)); c.height=Math.max(1,Math.round(img.naturalHeight*s));
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height); return c;
+    }
+    function rotate(src,deg){
+      var rad=deg*Math.PI/180, sw=src.width, sh=src.height,
+          cos=Math.abs(Math.cos(rad)), sin=Math.abs(Math.sin(rad)),
+          w=Math.round(sw*cos+sh*sin), h=Math.round(sw*sin+sh*cos),
+          c=document.createElement("canvas"); c.width=w; c.height=h;
+      var ctx=c.getContext("2d"); ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,w,h);
+      ctx.translate(w/2,h/2); ctx.rotate(rad); ctx.drawImage(src,-sw/2,-sh/2); return c;
+    }
+    function encodeScaled(src,max,q){
+      var w=src.width,h=src.height,s=Math.min(1,max/Math.max(w,h));
+      var c=document.createElement("canvas"); c.width=Math.round(w*s); c.height=Math.round(h*s);
+      c.getContext("2d").drawImage(src,0,0,c.width,c.height); return c.toDataURL("image/jpeg",q);
+    }
+    function positionCrop(){
+      cropEl.style.left=(cv.offsetLeft+rect.x)+"px"; cropEl.style.top=(cv.offsetTop+rect.y)+"px";
+      cropEl.style.width=rect.w+"px"; cropEl.style.height=rect.h+"px";
+    }
+    function resetCrop(){ rect={x:0,y:0,w:cv.width,h:cv.height}; positionCrop(); }
+    function refresh(keepCrop){
+      var deg=quarter*90+fine; curFull=rotate(base,deg);
+      var maxW=stage.clientWidth || (stage.parentNode&&stage.parentNode.clientWidth) || 600;
+      var vh=window.innerHeight || document.documentElement.clientHeight || 700;
+      var maxH=Math.max(220, vh*0.6);
+      curDS=Math.min(maxW/curFull.width, maxH/curFull.height, 1);
+      if(!(curDS>0)) curDS=Math.min(1, maxW/curFull.width) || 1;
+      cv.width=Math.max(1,Math.round(curFull.width*curDS));
+      cv.height=Math.max(1,Math.round(curFull.height*curDS));
+      cv.getContext("2d").drawImage(curFull,0,0,cv.width,cv.height);
+      if(!keepCrop) resetCrop(); else positionCrop();
+    }
+    function open(src){
+      var img=new Image();
+      img.onload=function(){ base=buildBase(img); quarter=0; fine=0; angleInput.value=0; angleVal.textContent="0°";
+        ie.classList.add("open"); requestAnimationFrame(function(){ refresh(false); }); };
+      img.onerror=function(){ toast("Couldn’t load that image to edit"); };
+      img.src=src;
+    }
+    function close(){ ie.classList.remove("open"); base=null; curFull=null; }
+
+    // expose to the work editor
+    window.__openImageEditor=function(){
+      var val=(document.querySelector("[name=image]")||{}).value||"";
+      var pv=document.getElementById("ed-preview");
+      var src=/^data:/.test(val)?val:(val|| (pv&&pv.src) ||"");
+      if(!src){ toast("Upload or set an image first"); return; }
+      open(src);
+    };
+
+    // controls
+    document.getElementById("ie-close").addEventListener("click",close);
+    document.getElementById("ie-cancel").addEventListener("click",close);
+    document.getElementById("ie-rot-l").addEventListener("click",function(){ quarter=(quarter+3)%4; refresh(false); });
+    document.getElementById("ie-rot-r").addEventListener("click",function(){ quarter=(quarter+1)%4; refresh(false); });
+    document.getElementById("ie-crop-reset").addEventListener("click",resetCrop);
+    document.getElementById("ie-reset").addEventListener("click",function(){ quarter=0; fine=0; angleInput.value=0; angleVal.textContent="0°"; refresh(false); });
+    angleInput.addEventListener("input",function(){ fine=+angleInput.value; angleVal.textContent=fine+"°"; refresh(false); });
+
+    document.getElementById("ie-apply").addEventListener("click",function(){
+      if(!curFull) return;
+      var sx=rect.x/curDS, sy=rect.y/curDS, sw=rect.w/curDS, sh=rect.h/curDS;
+      var out=document.createElement("canvas");
+      out.width=Math.max(1,Math.round(sw)); out.height=Math.max(1,Math.round(sh));
+      out.getContext("2d").drawImage(curFull, sx,sy,sw,sh, 0,0,out.width,out.height);
+      var full=encodeScaled(out,1600,0.85), thumb=encodeScaled(out,800,0.8);
+      var fld=document.querySelector("[name=image]"); if(fld) fld.value=full;
+      var pv=document.getElementById("ed-preview"); if(pv){ pv.src=thumb; pv.style.visibility="visible"; pv.dataset.thumb=thumb; }
+      close(); toast("Image updated — remember to Save");
+    });
+
+    // crop drag + resize (pointer based)
+    function relCanvas(e){ var r=cv.getBoundingClientRect();
+      return { x:Math.max(0,Math.min(cv.width, e.clientX-r.left)), y:Math.max(0,Math.min(cv.height, e.clientY-r.top)) }; }
+    var drag=null;
+    function startDrag(mode,e){ e.preventDefault();
+      drag={mode:mode, start:relCanvas(e), r0:{x:rect.x,y:rect.y,w:rect.w,h:rect.h}};
+      window.addEventListener("pointermove",onMove); window.addEventListener("pointerup",endDrag); }
+    function onMove(e){ if(!drag) return; var p=relCanvas(e), MIN=24, r0=drag.r0;
+      if(drag.mode==="move"){
+        var dx=p.x-drag.start.x, dy=p.y-drag.start.y;
+        rect.x=Math.max(0,Math.min(cv.width-r0.w, r0.x+dx));
+        rect.y=Math.max(0,Math.min(cv.height-r0.h, r0.y+dy));
+      } else {
+        var x1=r0.x, y1=r0.y, x2=r0.x+r0.w, y2=r0.y+r0.h;
+        if(drag.mode.indexOf("w")>=0) x1=Math.min(p.x, x2-MIN);
+        if(drag.mode.indexOf("e")>=0) x2=Math.max(p.x, x1+MIN);
+        if(drag.mode.indexOf("n")>=0) y1=Math.min(p.y, y2-MIN);
+        if(drag.mode.indexOf("s")>=0) y2=Math.max(p.y, y1+MIN);
+        rect.x=x1; rect.y=y1; rect.w=x2-x1; rect.h=y2-y1;
+      }
+      positionCrop();
+    }
+    function endDrag(){ drag=null; window.removeEventListener("pointermove",onMove); window.removeEventListener("pointerup",endDrag); }
+    cropEl.addEventListener("pointerdown",function(e){ if(e.target.classList.contains("ie__h")) return; startDrag("move",e); });
+    [["nw","nw"],["ne","ne"],["sw","sw"],["se","se"]].forEach(function(h){
+      var el=cropEl.querySelector(".ie__h."+h[0]);
+      if(el) el.addEventListener("pointerdown",function(e){ e.stopPropagation(); startDrag(h[1],e); });
+    });
+  })();
 
   window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
 })();
