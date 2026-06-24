@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="styles.css?v=5">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="images/logo.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -148,10 +148,7 @@
       <b>Unsaved changes.</b> Click <b>Save changes</b> to store them on this device, then <b>Export data.js</b> and upload it to your server to publish for everyone.
     </div>
     <div class="adm-note">
-      <b>How publishing works.</b> <b>Save changes</b> stores your edits in this browser only — use <b>Preview my edits</b> to see them.
-      The public site (on every device — desktop, phone, tablet) always shows the published <code>data.js</code>.
-      To make changes live for <b>everyone</b>: click <b>Export data.js</b> and upload it to your server, replacing the old <code>data.js</code>.
-      For best performance, place image files in the <code>/images</code> folder and reference them by filename.
+      <b>Publishing.</b> If <b>cloud sync</b> is connected (Site settings), clicking <b>Save changes</b> publishes to every device automatically — no file upload. If it isn’t connected, use <b>Export data.js</b> and upload the file to your server. <b>Preview my edits</b> shows your local changes before publishing.
     </div>
     <div class="adm-bulk">
       <span class="lbl">Prices</span>
@@ -217,7 +214,7 @@
 
 
 <script src="data.js"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 <script>
 (function(){
   var STORE_KEY = "dubelart_data_v1";
@@ -248,6 +245,47 @@
   function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2200);}
   function markDirty(){dirty=true;document.getElementById("dirty-note").style.display="block";}
 
+  // ---- cloud sync (JSONBin.io) ----
+  var CLOUD_CACHE="dubelart_cloud_v1", CLOUD_BASE="https://api.jsonbin.io/v3/b/";
+  function cloudConfigured(){ return !!(db && db.site && db.site.cloudBinId && db.site.cloudWriteKey); }
+  function stripDataUrls(src){
+    var copy=clone(src), warned=false;
+    (copy.works||[]).forEach(function(w){
+      if(/^data:/.test(w.image||"")){ w.image=""; warned=true; }
+      if(/^data:/.test(w.thumb||"")){ w.thumb=""; warned=true; }
+    });
+    return {data:copy, warned:warned};
+  }
+  function publishCloud(cb){
+    if(!cloudConfigured()){ if(cb)cb(false,"not configured"); return; }
+    if(typeof fetch!=="function"){ if(cb)cb(false,"browser too old"); return; }
+    var s=db.site, prep=stripDataUrls(db), body=JSON.stringify(prep.data);
+    if(body.length>95000){ if(cb)cb(false,"catalogue is over ~95kb — use image file paths in /images, not uploaded images"); return; }
+    fetch(CLOUD_BASE+encodeURIComponent(s.cloudBinId),{
+      method:"PUT",
+      headers:{"Content-Type":"application/json","X-Master-Key":s.cloudWriteKey},
+      body:body
+    }).then(function(r){ return r.ok?r.json():Promise.reject("HTTP "+r.status); })
+      .then(function(){
+        try{localStorage.setItem(CLOUD_CACHE,JSON.stringify({t:Date.now(),data:prep.data}));}catch(e){}
+        if(cb)cb(true, prep.warned ? "published — note: uploaded (non-file) images can’t sync, add them as /images files" : "published to all devices");
+      })
+      .catch(function(err){ if(cb)cb(false, String(err)); });
+  }
+  function pullCloud(cb){
+    var s=(db&&db.site)||SEED.site||{};
+    if(!s.cloudBinId || !(s.cloudReadKey||s.cloudWriteKey) || typeof fetch!=="function"){ if(cb)cb(false); return; }
+    var headers={"X-Bin-Meta":"false"};
+    if(s.cloudReadKey) headers["X-Access-Key"]=s.cloudReadKey; else headers["X-Master-Key"]=s.cloudWriteKey;
+    fetch(CLOUD_BASE+encodeURIComponent(s.cloudBinId)+"/latest",{headers:headers})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(j){ var d=(j&&j.works)?j:((j&&j.record&&j.record.works)?j.record:null);
+        if(d){ db=d; try{localStorage.setItem(STORE_KEY,JSON.stringify(d));}catch(e){} renderList(); if(cb)cb(true); }
+        else if(cb)cb(false);
+      })
+      .catch(function(){ if(cb)cb(false); });
+  }
+
   // ---- gate ----
   function unlock(){
     var pass=document.getElementById("gate-pass").value;
@@ -265,6 +303,9 @@
     document.getElementById("gate").style.display="none";
     document.getElementById("app").style.display="block";
     db=load(); renderList();
+    if(db.site && db.site.cloudBinId && (db.site.cloudReadKey||db.site.cloudWriteKey)){
+      pullCloud(function(ok){ if(ok) toast("Loaded latest from cloud"); });
+    }
   }
   try{ if(sessionStorage.getItem("dubelart_admin")==="1") showApp(); }catch(e){}
 
@@ -437,6 +478,12 @@
       field("Price / shipping note (shown on each work)","priceNote",s.priceNote,{type:"textarea"})+
       field("Hidden-price label","priceHiddenLabel",s.priceHiddenLabel,{hint:"Shown in place of the price when a work\u2019s price is hidden (e.g. \u201cContact for price\u201d, \u201cPrice on request\u201d)."})+
       field("Visitor analytics — Google Analytics ID (optional)","analyticsId",s.analyticsId,{hint:"Paste a GA4 ID like G-XXXXXXXXXX to count visits per page. Leave blank for none. In the EU a cookie/consent notice may be required."})+
+      "<div class='adm-note' style='margin:6px 0 14px'><b>Auto-sync (optional).</b> Connect a free JSONBin.io bin so edits publish to every device automatically — no file upload. Create a bin at jsonbin.io, then paste its Bin ID + keys below. Use your <b>Master Key</b> for writing and a <b>read-only Access Key</b> for visitors.</div>"+
+      field("Cloud — Bin ID","cloudBinId",s.cloudBinId,{hint:"The JSONBin bin ID (from the bin’s URL)."})+
+      "<div class='f2'>"+
+        field("Cloud — Write key (Master Key)","cloudWriteKey",s.cloudWriteKey,{hint:"Used only in this admin to publish. Keep your admin passcode private."})+
+        field("Cloud — Read key (Access Key, read-only)","cloudReadKey",s.cloudReadKey,{hint:"Embedded in the public site so visitors can read the catalogue."})+
+      "</div>"+
       field("Admin passcode","adminPass",s.adminPass,{hint:"Note: this is light protection only. For real security, password-protect admin.html on your hosting."});
     sheet.classList.add("open");
   }
@@ -444,7 +491,7 @@
     var body=document.getElementById("editor-body");
     function v(n){var el=body.querySelector("[name="+n+"]");return el?el.value.trim():"";}
     var s=db.site;
-    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","priceNote","priceHiddenLabel","analyticsId","adminPass"]
+    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","priceNote","priceHiddenLabel","analyticsId","cloudBinId","cloudWriteKey","cloudReadKey","adminPass"]
       .forEach(function(k){s[k]=v(k);});
     s.ticker=v("ticker").split("\n").map(function(x){return x.trim();}).filter(Boolean);
     s.name=(s.wordmarkA||"")+" "+(s.wordmarkB||"");
@@ -462,7 +509,12 @@
     try{
       localStorage.setItem(STORE_KEY,JSON.stringify(db));
       dirty=false;document.getElementById("dirty-note").style.display="none";
-      toast("Saved on this device");
+      if(cloudConfigured()){
+        toast("Saved — publishing to all devices…");
+        publishCloud(function(ok,info){ toast(ok ? ("✓ "+info) : ("Saved locally. Cloud publish failed: "+info)); });
+      } else {
+        toast("Saved on this device. (Connect cloud sync in Site settings to auto-publish.)");
+      }
     }catch(e){alert("Could not save: storage may be full (embedded images are large). Use image filenames in /images instead of uploads.");}
   });
   document.getElementById("btn-export").addEventListener("click",function(){

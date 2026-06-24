@@ -4,26 +4,67 @@
 (function () {
   "use strict";
   var STORE_KEY = "dubelart_data_v1";
+  var CLOUD_CACHE = "dubelart_cloud_v1";
+  var CLOUD_TTL = 5 * 60 * 1000; // serve cache instantly, refresh from cloud at most this often
+  var CLOUD_BASE = "https://api.jsonbin.io/v3/b/";
   var loadedSite = null;
 
-  // --- data loading: localStorage override (admin edits on this device) > seed (data.js)
+  function isPreview() {
+    try { return /[?&]preview=1(\b|&|$)/.test(location.search); } catch (e) { return false; }
+  }
+  function cloudCfg() {
+    var s = window.SITE || {};
+    return (s.cloudBinId && s.cloudReadKey) ? s : null;
+  }
+  function readCloudCache() {
+    try { var c = JSON.parse(localStorage.getItem(CLOUD_CACHE) || "null"); if (c && c.data && c.data.works) return c; } catch (e) {}
+    return null;
+  }
+
+  // Instant data for first render: cloud cache (public) or local edits (preview) or bundled seed.
   function loadData() {
     var seed = { site: window.SITE || {}, works: window.ARTWORKS || [] };
-    var preview = false;
-    try { preview = /[?&]preview=1(\b|&|$)/.test(location.search); } catch (e) {}
-    if (!preview) {
-      // PUBLIC: the published data.js is the single source of truth for every device.
-      loadedSite = seed.site || {};
-      return seed;
+    if (isPreview()) {
+      var data = seed;
+      try { var raw = localStorage.getItem(STORE_KEY); if (raw) { var p = JSON.parse(raw); if (p && p.works) data = p; } } catch (e) {}
+      loadedSite = data.site || {};
+      return data;
     }
-    // PREVIEW mode (admin "View site"): show this device's unpublished local edits.
-    var data = seed;
-    try {
-      var raw = localStorage.getItem(STORE_KEY);
-      if (raw) { var parsed = JSON.parse(raw); if (parsed && parsed.works) data = parsed; }
-    } catch (e2) {}
-    loadedSite = data.site || {};
-    return data;
+    if (cloudCfg()) {
+      var c = readCloudCache();
+      if (c) { loadedSite = c.data.site || {}; return c.data; }
+    }
+    loadedSite = seed.site || {};
+    return seed;
+  }
+
+  // Fetch the latest catalogue from the cloud store (JSONBin). cb(data|null).
+  function fetchCloud(s, cb) {
+    if (typeof fetch !== "function") { cb(null); return; }
+    var url = CLOUD_BASE + encodeURIComponent(s.cloudBinId) + "/latest";
+    fetch(url, { headers: { "X-Access-Key": s.cloudReadKey, "X-Bin-Meta": "false" } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (j && j.works) cb(j);
+        else if (j && j.record && j.record.works) cb(j.record); // if meta wasn't stripped
+        else cb(null);
+      })
+      .catch(function () { cb(null); });
+  }
+
+  // Render-now-then-sync: calls cb immediately with instant data, then again if the cloud has newer data.
+  function onData(cb) {
+    var instant = loadData();
+    cb(instant);
+    if (isPreview()) return;
+    var s = cloudCfg(); if (!s) return;
+    var c = readCloudCache();
+    if (c && (Date.now() - (c.t || 0) < CLOUD_TTL)) return; // cache still fresh — skip the request
+    fetchCloud(s, function (cloud) {
+      if (!cloud || !cloud.works) return;
+      try { localStorage.setItem(CLOUD_CACHE, JSON.stringify({ t: Date.now(), data: cloud })); } catch (e) {}
+      if (JSON.stringify(cloud) !== JSON.stringify(instant)) { loadedSite = cloud.site || {}; cb(cloud); }
+    });
   }
 
   function hiddenPriceLabel() {
@@ -128,7 +169,7 @@
   }
 
   window.DubelArt = {
-    loadData: loadData, esc: esc, statusInfo: statusInfo,
+    loadData: loadData, onData: onData, esc: esc, statusInfo: statusInfo,
     priceText: priceText, mountChrome: mountChrome
   };
 })();

@@ -31,9 +31,12 @@ window.SITE = {
   "formAccessKey": "",
   "priceNote": "All prices are in EUR and exclude shipping, handling, insurance and any taxes or import duties. Final pricing may vary with the buyer's location and local tax treatment.",
   "priceHiddenLabel": "Contact for price",
-  "dataVersion": 1782297796894,
+  "dataVersion": 1782316196435,
   "logo": "images/logo.png",
-  "analyticsId": ""
+  "analyticsId": "",
+  "cloudBinId": "",
+  "cloudWriteKey": "",
+  "cloudReadKey": ""
 };
 
 window.ARTWORKS = [
@@ -143,7 +146,7 @@ window.ARTWORKS = [
       "Dubel Team — Art Department"
     ],
     "status": "available",
-    "priceMode": "value",
+    "priceMode": "on_request",
     "exhibitions": [],
     "publications": [],
     "framed": "",
@@ -171,14 +174,13 @@ window.ARTWORKS = [
     ],
     "exhibitions": [],
     "status": "available",
-    "priceMode": "value",
+    "priceMode": "on_request",
     "featured": false,
     "publications": [],
     "framed": "",
     "image": "images/denny-ripped.jpg",
     "thumb": "images/denny-ripped-thumb.jpg",
-    "id": 5,
-    "edition": ""
+    "id": 5
   },
   {
     "slug": "chabaud-autour-de-la-table",
@@ -460,7 +462,7 @@ window.ARTWORKS = [
     "edition": "",
     "price": "€1,500",
     "priceSort": 1500,
-    "priceMode": "value",
+    "priceMode": "on_request",
     "status": "available",
     "featured": false,
     "signature": "",
@@ -487,7 +489,7 @@ window.ARTWORKS = [
     "edition": "",
     "price": "€800",
     "priceSort": 800,
-    "priceMode": "value",
+    "priceMode": "on_request",
     "status": "available",
     "featured": false,
     "signature": "",
@@ -514,7 +516,7 @@ window.ARTWORKS = [
     "edition": "",
     "price": "€1,500",
     "priceSort": 1500,
-    "priceMode": "value",
+    "priceMode": "on_request",
     "status": "available",
     "featured": false,
     "signature": "Signed lower left, “PNGS”",
@@ -529,5 +531,57 @@ window.ARTWORKS = [
     "image": "images/pngs.jpg",
     "thumb": "images/pngs-thumb.jpg",
     "id": 17
+  },
+  {
+    "id": 18,
+    "slug": "mauro-figures-2025",
+    "artist": "MAURO",
+    "title": "Untitled (Two Figures)",
+    "year": "2025",
+    "medium": "Acrylic on canvas",
+    "dimensions": "",
+    "framed": "",
+    "edition": "",
+    "signature": "",
+    "condition": "",
+    "status": "available",
+    "featured": false,
+    "price": "€1,000",
+    "priceMode": "on_request",
+    "image": "images/mauro-figures-2025.jpg",
+    "thumb": "images/mauro-figures-2025-thumb.jpg",
+    "description": "An expressionist double portrait in saturated reds and earth tones. Two figures are set side by side — one pale and frontal with stylised blossoms across the chest, the other in deep shadow with a single wide eye and a hand drawn across the face — in MAURO’s raw, gestural figurative language.",
+    "provenance": [
+      "Dubel Team — Art Department"
+    ],
+    "exhibitions": [],
+    "publications": [],
+    "internalNote": ""
+  },
+  {
+    "id": 19,
+    "slug": "khavaris-wooded-landscape",
+    "artist": "Neofytos Khavaris",
+    "title": "Untitled (Wooded Landscape with Path)",
+    "year": "",
+    "medium": "Oil on canvas, framed",
+    "dimensions": "",
+    "framed": "Giltwood frame",
+    "edition": "",
+    "signature": "",
+    "condition": "",
+    "status": "available",
+    "featured": false,
+    "price": "€1,000",
+    "priceMode": "on_request",
+    "image": "images/khavaris-landscape.jpg",
+    "thumb": "images/khavaris-landscape-thumb.jpg",
+    "description": "A pastoral landscape in muted greens and earth tones: a track winding past wind-bent trees beneath a clouded sky, painted in a traditional naturalist manner. Oil on canvas, in a giltwood frame.",
+    "provenance": [
+      "Dubel Team — Art Department"
+    ],
+    "exhibitions": [],
+    "publications": [],
+    "internalNote": "Artist biography supplied by owner could not be independently verified (no public record found as of cataloguing). Biography NOT published pending documentation."
   }
 ];

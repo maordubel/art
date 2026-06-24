@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="styles.css?v=5">
 <meta property="og:title" content="DUBEL ART — Dubel Team, Art Department">
 <meta property="og:description" content="Modern & contemporary works — private sale, by appointment.">
 <meta property="og:image" content="images/logo.png">
@@ -88,24 +88,15 @@
 <footer id="site-footer"></footer>
 
 <script src="data.js"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 <script>
 (function(){
   var D = window.DubelArt;
-  var data = D.loadData();
-  var site = data.site, works = data.works;
-  D.mountChrome(site);
-
-  // hero copy
-  function set(id,v){var n=document.getElementById(id); if(n) n.textContent=v||"";}
-  set("hero-eyebrow", site.heroEyebrow);
-  set("hl1", site.heroLine1); set("hl2", site.heroLine2); set("hl3", site.heroLine3);
-  set("hero-statement", site.heroStatement);
-  set("hero-body", site.heroBody);
-
+  var site = {}, works = [], current = "all";
   var grid = document.getElementById("grid");
   var countEl = document.getElementById("count");
-  var current = "all";
+
+  function set(id,v){var n=document.getElementById(id); if(n) n.textContent=v||"";}
 
   function cardHtml(w){
     var st = D.statusInfo(w);
@@ -141,7 +132,8 @@
       "<div class='empty'>No works in this category right now.</div>";
   }
 
-  document.getElementById("filters").addEventListener("click", function(e){
+  var filters = document.getElementById("filters");
+  if(filters) filters.addEventListener("click", function(e){
     var b = e.target.closest(".chip"); if(!b) return;
     current = b.getAttribute("data-filter");
     [].forEach.call(this.querySelectorAll(".chip"), function(c){
@@ -150,7 +142,17 @@
     render();
   });
 
-  render();
+  function apply(data){
+    site = data.site || {}; works = data.works || [];
+    D.mountChrome(site);
+    set("hero-eyebrow", site.heroEyebrow);
+    set("hl1", site.heroLine1); set("hl2", site.heroLine2); set("hl3", site.heroLine3);
+    set("hero-statement", site.heroStatement);
+    set("hero-body", site.heroBody);
+    render();
+  }
+
+  D.onData(apply);
 })();
 </script>
 </body>

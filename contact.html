@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="styles.css?v=5">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="images/logo.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -71,32 +71,21 @@
 if(!window.URLSearchParams){window.URLSearchParams=function(q){q=(q||"").replace(/^\?/,"");this.get=function(k){var a=q.split("&");for(var i=0;i<a.length;i++){var kv=a[i].split("=");if(decodeURIComponent(kv[0])===k)return decodeURIComponent((kv[1]||"").replace(/\+/g," "));}return null;};};}
 </script>
 <script src="data.js"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 <script>
 (function(){
   var D = window.DubelArt;
-  var data = D.loadData();
-  var site = data.site, works = data.works;
-  D.mountChrome(site);
-
+  var site = {}, works = [];
   function param(n){ return new URLSearchParams(location.search).get(n); }
   var slug = param("work");
 
   var sel = document.getElementById("artwork");
-  var opts = "<option value=''>General enquiry</option>";
-  works.forEach(function(w){
-    var label = w.artist + " — " + w.title + (w.year ? " (" + w.year + ")" : "");
-    var val = w.slug || w.id;
-    opts += "<option value='" + D.esc(val) + "'" + (String(val) === String(slug) ? " selected" : "") + ">" + D.esc(label) + "</option>";
-  });
-  sel.innerHTML = opts;
+  var card = document.getElementById("work-card");
 
   function currentWork(){
     var v = sel.value;
     return works.filter(function(w){ return String(w.slug || w.id) === String(v); })[0];
   }
-
-  var card = document.getElementById("work-card");
   function renderCard(){
     var w = currentWork();
     if(!w){ card.innerHTML = ""; return; }
@@ -112,10 +101,23 @@ if(!window.URLSearchParams){window.URLSearchParams=function(q){q=(q||"").replace
       "</div>";
   }
   sel.addEventListener("change", renderCard);
-  renderCard();
 
-  var pn = document.getElementById("price-note");
-  if (pn && site.priceNote) pn.textContent = site.priceNote;
+  function apply(data){
+    site = data.site || {}; works = data.works || [];
+    D.mountChrome(site);
+    var prev = sel.value || slug;
+    var opts = "<option value=''>General enquiry</option>";
+    works.forEach(function(w){
+      var label = w.artist + " — " + w.title + (w.year ? " (" + w.year + ")" : "");
+      var val = w.slug || w.id;
+      opts += "<option value='" + D.esc(val) + "'" + (String(val) === String(prev) ? " selected" : "") + ">" + D.esc(label) + "</option>";
+    });
+    sel.innerHTML = opts;
+    renderCard();
+    var pn = document.getElementById("price-note");
+    if (pn && site.priceNote) pn.textContent = site.priceNote;
+  }
+  D.onData(apply);
 
   var form = document.getElementById("enquiry");
   var msg  = document.getElementById("msg");
