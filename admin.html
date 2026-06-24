@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage catalogue — DUBEL ART</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .adm-top{background:var(--ink);color:var(--paper);border-bottom:2px solid var(--red)}
+  .adm-top .wrap{display:flex;align-items:center;gap:18px;height:70px}
+  .adm-top .name{font-family:var(--display);font-size:22px}
+  .adm-top .name b{color:var(--red)}
+  .adm-top .tag{font-family:var(--util);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#bdae97}
+  .adm-actions{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+  .mini{font-family:var(--util);font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    padding:11px 15px;border-radius:2px;border:1.5px solid var(--paper);background:transparent;color:var(--paper);transition:.18s}
+  .mini:hover{background:var(--paper);color:var(--ink)}
+  .mini--red{background:var(--red);border-color:var(--red);color:#fff}
+  .mini--red:hover{background:#fff;color:var(--red)}
+  .adm-note{background:#f6efd9;border:1px solid var(--line);border-left:4px solid var(--red);padding:14px 18px;margin:22px 0;
+    font-size:13.5px;color:var(--ink-soft);border-radius:2px}
+  .adm-note b{color:var(--ink)}
+  .adm-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+  .row{display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:center;background:var(--card);
+    border:1px solid var(--line);border-radius:3px;padding:12px 14px}
+  .row img{width:64px;height:64px;object-fit:cover;background:#fff;border:1px solid var(--line)}
+  .row__main .a{font-family:var(--display);font-size:18px;line-height:1}
+  .row__main .t{font-family:var(--serif);font-style:italic;color:var(--ink-soft);font-size:14px}
+  .row__main .s{font-family:var(--util);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+  .badge{display:inline-block;font-family:var(--util);font-weight:800;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    padding:3px 8px;border-radius:2px;background:var(--ink);color:var(--paper);margin-right:6px}
+  .badge--reserved{background:var(--green)} .badge--sold{background:var(--red)}
+  .row__ctrl{display:flex;gap:6px;align-items:center}
+  .icon{width:34px;height:34px;border:1.5px solid var(--line-strong);background:transparent;border-radius:2px;
+    font-size:14px;display:grid;place-items:center;color:var(--ink-soft)}
+  .icon:hover{border-color:var(--ink);color:var(--ink)}
+  .icon--danger:hover{border-color:var(--red);color:var(--red)}
+  /* editor */
+  .sheet{position:fixed;inset:0;background:rgba(23,18,11,.55);display:none;z-index:80;overflow:auto;padding:28px}
+  .sheet.open{display:block}
+  .editor{max-width:780px;margin:0 auto;background:var(--paper-2);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow)}
+  .editor__head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:2px solid var(--ink);position:sticky;top:0;background:var(--paper-2);z-index:2}
+  .editor__head h3{font-family:var(--display);font-size:24px;margin:0;text-transform:uppercase}
+  .editor__body{padding:22px 24px 8px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-family:var(--util);font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;font-family:var(--body);font-size:14px;padding:11px 12px;
+    border:1.5px solid var(--line-strong);border-radius:2px;background:#fff;color:var(--ink)}
+  .field textarea{min-height:80px;resize:vertical;line-height:1.5}
+  .field .hint{font-size:11.5px;color:var(--muted);margin-top:5px}
+  .f2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .imgrow{display:flex;gap:16px;align-items:center}
+  .imgrow img{width:96px;height:96px;object-fit:cover;border:1px solid var(--line);background:#fff}
+  .editor__foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--line);
+    position:sticky;bottom:0;background:var(--paper-2)}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(140%);background:var(--ink);color:var(--paper);
+    font-family:var(--util);font-weight:700;font-size:13px;letter-spacing:.06em;padding:13px 22px;border-radius:3px;
+    border-left:4px solid var(--red);transition:transform .35s ease;z-index:90}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  /* gate */
+  .gate{position:fixed;inset:0;background:var(--paper);display:grid;place-items:center;z-index:100}
+  .gate__box{width:min(420px,90vw);text-align:center}
+  .gate__box .brand__mark{margin:0 auto 18px;width:60px;height:60px}
+  .gate h1{font-family:var(--display);font-size:34px;text-transform:uppercase;margin:0 0 6px}
+  .gate p{color:var(--ink-soft);margin:0 0 22px;font-family:var(--serif);font-style:italic}
+  .gate input{width:100%;padding:14px;border:1.5px solid var(--ink);border-radius:2px;font-size:15px;text-align:center;letter-spacing:.1em;margin-bottom:12px}
+  .gate .err{color:var(--red);font-family:var(--util);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;height:16px;margin-bottom:8px}
+  @media(max-width:640px){.f2,.f3{grid-template-columns:1fr}.row{grid-template-columns:52px 1fr;gap:12px}.row__ctrl{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+
+<!-- passcode gate -->
+<div class="gate" id="gate">
+  <div class="gate__box">
+    <div class="brand__mark">DA</div>
+    <h1>Catalogue Admin</h1>
+    <p>Enter the management passcode</p>
+    <div class="err" id="gate-err"></div>
+    <input type="password" id="gate-pass" placeholder="Passcode" autocomplete="off">
+    <button class="btn btn--block" id="gate-go">Unlock</button>
+    <p style="font-size:12px;font-style:normal;font-family:var(--util);margin-top:18px;color:var(--muted)">
+      <a href="index.html" style="color:var(--muted);text-decoration:underline">← Back to site</a></p>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="adm-top"><div class="wrap">
+    <span class="name">DUBEL <b>ART</b></span>
+    <span class="tag">Catalogue Manager</span>
+    <div class="adm-actions">
+      <button class="mini" id="btn-settings">Site settings</button>
+      <button class="mini" id="btn-add">+ Add work</button>
+      <button class="mini" id="btn-import">Import</button>
+      <button class="mini" id="btn-export">Export data.js</button>
+      <button class="mini mini--red" id="btn-save">Save changes</button>
+      <a class="mini" href="index.html" target="_blank">View site ↗</a>
+    </div>
+  </div></div>
+
+  <main class="wrap">
+    <div class="adm-note" id="dirty-note" style="display:none">
+      <b>Unsaved changes.</b> Click <b>Save changes</b> to store them on this device, then <b>Export data.js</b> and upload it to your server to publish for everyone.
+    </div>
+    <div class="adm-note">
+      <b>How publishing works.</b> Edits are saved in this browser so you can preview them on the live URL here.
+      To make changes visible to <b>all visitors</b>, click <b>Export data.js</b> and replace the <code>data.js</code> file on your server.
+      Uploaded images are embedded for preview — for best performance, place image files in the <code>/images</code> folder and reference them by filename.
+    </div>
+    <div class="adm-grid" id="list"></div>
+  </main>
+</div>
+
+<!-- editor sheet -->
+<div class="sheet" id="sheet">
+  <div class="editor">
+    <div class="editor__head">
+      <h3 id="editor-title">Edit work</h3>
+      <button class="icon" id="editor-close" aria-label="Close">✕</button>
+    </div>
+    <div class="editor__body" id="editor-body"><!-- injected --></div>
+    <div class="editor__foot">
+      <button class="mini" style="border-color:var(--ink);color:var(--ink)" id="editor-cancel">Cancel</button>
+      <button class="btn" id="editor-apply">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="import-file" accept=".js,.json,application/json,text/javascript" style="display:none">
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  var STORE_KEY = "dubelart_data_v1";
+  var SEED = { site: JSON.parse(JSON.stringify(window.SITE||{})), works: JSON.parse(JSON.stringify(window.ARTWORKS||[])) };
+  var db, dirty=false, editIndex=null, editingSettings=false;
+
+  function clone(o){return JSON.parse(JSON.stringify(o));}
+  function load(){
+    try{var raw=localStorage.getItem(STORE_KEY); if(raw){var p=JSON.parse(raw); if(p&&p.works) return p;}}catch(e){}
+    return clone(SEED);
+  }
+  function esc(s){return window.DubelArt.esc(s);}
+  function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2200);}
+  function markDirty(){dirty=true;document.getElementById("dirty-note").style.display="block";}
+
+  // ---- gate ----
+  function unlock(){
+    var pass=document.getElementById("gate-pass").value;
+    var expected=(SEED.site && SEED.site.adminPass) || "dubel-art-2026";
+    if(pass===expected){
+      try{sessionStorage.setItem("dubelart_admin","1");}catch(e){}
+      showApp();
+    }else{
+      document.getElementById("gate-err").textContent="Incorrect passcode";
+    }
+  }
+  document.getElementById("gate-go").addEventListener("click",unlock);
+  document.getElementById("gate-pass").addEventListener("keydown",function(e){if(e.key==="Enter")unlock();});
+  function showApp(){
+    document.getElementById("gate").style.display="none";
+    document.getElementById("app").style.display="block";
+    db=load(); renderList();
+  }
+  try{ if(sessionStorage.getItem("dubelart_admin")==="1") showApp(); }catch(e){}
+
+  // ---- list ----
+  function renderList(){
+    var list=document.getElementById("list");
+    if(!db.works.length){list.innerHTML="<div class='empty'>No works yet. Click “+ Add work”.</div>";return;}
+    list.innerHTML=db.works.map(function(w,i){
+      var st=window.DubelArt.statusInfo(w);
+      return "<div class='row'>"+
+        "<img src='"+esc(w.thumb||w.image)+"' alt='' onerror=\"this.style.visibility='hidden'\">"+
+        "<div class='row__main'>"+
+          "<div class='a'>"+esc(w.artist)+"</div>"+
+          "<div class='t'>"+esc(w.title)+(w.year?", "+esc(w.year):"")+"</div>"+
+          "<div class='s'><span class='badge badge--"+st.key+"'>"+st.label+"</span>"+
+            esc(w.priceMode==="on_request"?"Price on request":(w.price||"—"))+"</div>"+
+        "</div>"+
+        "<div class='row__ctrl'>"+
+          "<button class='icon' data-up='"+i+"' title='Move up' aria-label='Move up'>&#8593;</button>"+
+          "<button class='icon' data-down='"+i+"' title='Move down' aria-label='Move down'>&#8595;</button>"+
+          "<button class='icon' data-dup='"+i+"' title='Duplicate' aria-label='Duplicate'>&#10697;</button>"+
+          "<button class='icon' style='width:auto;padding:0 12px' data-edit='"+i+"'>Edit</button>"+
+          "<button class='icon icon--danger' data-del='"+i+"' title='Delete' aria-label='Delete'>&#215;</button>"+
+        "</div>"+
+      "</div>";
+    }).join("");
+  }
+  document.getElementById("list").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    var i;
+    if(b.hasAttribute("data-edit")){openEditor(+b.getAttribute("data-edit"));return;}
+    if(b.hasAttribute("data-up")){i=+b.getAttribute("data-up"); if(i>0){var t=db.works[i-1];db.works[i-1]=db.works[i];db.works[i]=t;markDirty();renderList();}return;}
+    if(b.hasAttribute("data-down")){i=+b.getAttribute("data-down"); if(i<db.works.length-1){var t2=db.works[i+1];db.works[i+1]=db.works[i];db.works[i]=t2;markDirty();renderList();}return;}
+    if(b.hasAttribute("data-dup")){i=+b.getAttribute("data-dup");var c=clone(db.works[i]);c.id=nextId();c.slug=uniqueSlug((c.slug||"work")+"-copy");c.title=(c.title||"")+" (copy)";db.works.splice(i+1,0,c);markDirty();renderList();toast("Duplicated");return;}
+    if(b.hasAttribute("data-del")){i=+b.getAttribute("data-del");if(confirm("Delete “"+(db.works[i].artist)+" — "+(db.works[i].title)+"”? This can’t be undone after you Save.")){db.works.splice(i,1);markDirty();renderList();}return;}
+  });
+
+  function nextId(){var m=0;db.works.forEach(function(w){if(+w.id>m)m=+w.id;});return m+1;}
+  function slugify(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,60)||"work";}
+  function uniqueSlug(base){var s=slugify(base),n=1,t=s;while(db.works.some(function(w){return w.slug===t;})){t=s+"-"+(++n);}return t;}
+
+  // ---- editor ----
+  var sheet=document.getElementById("sheet");
+  function field(label,name,val,opts){
+    opts=opts||{};
+    var input;
+    if(opts.type==="textarea") input="<textarea name='"+name+"'>"+esc(val||"")+"</textarea>";
+    else if(opts.type==="select"){
+      input="<select name='"+name+"'>"+opts.options.map(function(o){
+        return "<option value='"+esc(o[0])+"'"+(String(val)===String(o[0])?" selected":"")+">"+esc(o[1])+"</option>";}).join("")+"</select>";
+    }
+    else input="<input name='"+name+"' value='"+esc(val==null?"":val)+"' "+(opts.attr||"")+">";
+    return "<div class='field'><label>"+esc(label)+"</label>"+input+(opts.hint?"<div class='hint'>"+esc(opts.hint)+"</div>":"")+"</div>";
+  }
+
+  function openEditor(i){
+    editIndex=i; editingSettings=false;
+    var w = (i===null)? newWork() : db.works[i];
+    document.getElementById("editor-title").textContent = (i===null)?"Add work":"Edit work";
+    var body=document.getElementById("editor-body");
+    body.innerHTML =
+      "<div class='imgrow'><img id='ed-preview' src='"+esc(w.thumb||w.image||"")+"' alt='' onerror=\"this.style.visibility='hidden'\">"+
+        "<div style='flex:1'>"+
+          field("Image filename or path","image",w.image,{hint:"e.g. images/your-file.jpg — place the file in /images on your server."})+
+          "<label class='mini' style='border-color:var(--ink);color:var(--ink);display:inline-block;cursor:pointer'>Upload image…"+
+            "<input type='file' id='ed-upload' accept='image/*' style='display:none'></label>"+
+        "</div>"+
+      "</div>"+
+      "<div class='f2'>"+field("Artist","artist",w.artist)+field("Title","title",w.title)+"</div>"+
+      "<div class='f3'>"+field("Year","year",w.year)+field("Status","status",w.status,{type:"select",options:[["available","Available"],["reserved","Reserved"],["sold","Sold"]]})+
+        field("Featured","featured",w.featured?"yes":"no",{type:"select",options:[["no","No"],["yes","Yes"]]})+"</div>"+
+      "<div class='f2'>"+field("Medium","medium",w.medium)+field("Dimensions","dimensions",w.dimensions)+"</div>"+
+      "<div class='f2'>"+field("Framed size","framed",w.framed)+field("Edition","edition",w.edition)+"</div>"+
+      "<div class='f2'>"+
+        field("Price display","price",w.price,{hint:"e.g. €4,500 – 5,500 or CHF 12,000"})+
+        field("Price mode","priceMode",w.priceMode,{type:"select",options:[["value","Show price"],["on_request","Price on request"]]})+
+      "</div>"+
+      "<div class='f2'>"+field("Signature","signature",w.signature)+field("Condition","condition",w.condition)+"</div>"+
+      field("Description","description",w.description,{type:"textarea"})+
+      field("Provenance (one per line)","provenance",(w.provenance||[]).join("\n"),{type:"textarea"})+
+      "<div class='f2'>"+
+        field("Exhibited (one per line)","exhibitions",(w.exhibitions||[]).join("\n"),{type:"textarea"})+
+        field("Literature (one per line)","publications",(w.publications||[]).join("\n"),{type:"textarea"})+
+      "</div>"+
+      field("Internal note — PRIVATE, never shown on the site","internalNote",w.internalNote,{type:"textarea",hint:"Source / auction house / estimate. Visible only here in the admin."});
+    sheet.classList.add("open");
+    var up=document.getElementById("ed-upload");
+    if(up) up.addEventListener("change",function(e){handleUpload(e.target.files[0]);});
+  }
+
+  function newWork(){return {id:null,slug:null,artist:"",title:"",year:"",medium:"",dimensions:"",framed:"",edition:"",
+    price:"",priceMode:"value",status:"available",featured:false,signature:"",condition:"",
+    description:"",provenance:[],exhibitions:[],publications:[],internalNote:"",image:"",thumb:""};}
+
+  // image upload → downscale to dataURL (full + thumb)
+  function handleUpload(file){
+    if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      var img=new Image();
+      img.onload=function(){
+        var full=downscale(img,1600,0.85);
+        var thumb=downscale(img,800,0.8);
+        document.querySelector("[name=image]").value=full;
+        document.getElementById("ed-preview").src=thumb;
+        document.getElementById("ed-preview").style.visibility="visible";
+        document.getElementById("ed-preview").dataset.thumb=thumb;
+        toast("Image embedded for preview");
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  function downscale(img,max,q){
+    var w=img.naturalWidth,h=img.naturalHeight,s=Math.min(1,max/Math.max(w,h));
+    var c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    return c.toDataURL("image/jpeg",q);
+  }
+
+  document.getElementById("editor-apply").addEventListener("click",function(){
+    if(editingSettings){applySettings();return;}
+    var body=document.getElementById("editor-body");
+    function v(n){var el=body.querySelector("[name="+n+"]");return el?el.value.trim():"";}
+    function lines(n){return v(n).split("\n").map(function(x){return x.trim();}).filter(Boolean);}
+    var w = (editIndex===null)? newWork() : db.works[editIndex];
+    w.artist=v("artist"); w.title=v("title"); w.year=v("year");
+    w.medium=v("medium"); w.dimensions=v("dimensions"); w.framed=v("framed"); w.edition=v("edition");
+    w.price=v("price"); w.priceMode=v("priceMode"); w.status=v("status");
+    w.featured=(v("featured")==="yes");
+    w.signature=v("signature"); w.condition=v("condition"); w.description=v("description");
+    w.provenance=lines("provenance"); w.exhibitions=lines("exhibitions"); w.publications=lines("publications");
+    w.internalNote=v("internalNote");
+    var imgVal=v("image"); w.image=imgVal;
+    var prev=document.getElementById("ed-preview");
+    if(prev && prev.dataset.thumb) w.thumb=prev.dataset.thumb;     // uploaded thumb
+    else if(!/^data:/.test(imgVal)) w.thumb=imgVal.replace(/(\.[a-z]+)$/i,"-thumb$1"); // path → -thumb path
+    else w.thumb=imgVal;
+    if(!w.artist&&!w.title){toast("Add an artist or title first");return;}
+    if(editIndex===null){ w.id=nextId(); w.slug=uniqueSlug(w.artist+"-"+w.title); db.works.push(w); }
+    else if(!w.slug){ w.slug=uniqueSlug(w.artist+"-"+w.title); }
+    markDirty(); closeEditor(); renderList(); toast("Applied — remember to Save");
+  });
+
+  function closeEditor(){sheet.classList.remove("open");editIndex=null;editingSettings=false;}
+  document.getElementById("editor-close").addEventListener("click",closeEditor);
+  document.getElementById("editor-cancel").addEventListener("click",closeEditor);
+  sheet.addEventListener("click",function(e){if(e.target===sheet)closeEditor();});
+
+  // ---- settings editor ----
+  function openSettings(){
+    editingSettings=true;
+    document.getElementById("editor-title").textContent="Site settings";
+    var s=db.site, body=document.getElementById("editor-body");
+    body.innerHTML=
+      "<div class='f2'>"+field("Wordmark — part 1","wordmarkA",s.wordmarkA)+field("Wordmark — part 2 (red)","wordmarkB",s.wordmarkB)+"</div>"+
+      field("Tagline","tagline",s.tagline)+
+      "<div class='f3'>"+field("Email","email",s.email)+field("Phone","phone",s.phone)+field("Site URL","url",s.url)+"</div>"+
+      field("Address","address",s.address)+
+      field("Ticker items (one per line)","ticker",(s.ticker||[]).join("\n"),{type:"textarea"})+
+      field("Hero eyebrow","heroEyebrow",s.heroEyebrow)+
+      "<div class='f3'>"+field("Hero line 1","heroLine1",s.heroLine1)+field("Hero line 2","heroLine2",s.heroLine2)+field("Hero line 3 (red)","heroLine3",s.heroLine3)+"</div>"+
+      field("Hero statement","heroStatement",s.heroStatement,{type:"textarea"})+
+      field("Hero body","heroBody",s.heroBody,{type:"textarea"})+
+      field("Admin passcode","adminPass",s.adminPass,{hint:"Note: this is light protection only. For real security, password-protect admin.html on your hosting."});
+    sheet.classList.add("open");
+  }
+  function applySettings(){
+    var body=document.getElementById("editor-body");
+    function v(n){var el=body.querySelector("[name="+n+"]");return el?el.value.trim():"";}
+    var s=db.site;
+    ["wordmarkA","wordmarkB","tagline","email","phone","url","address","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","adminPass"]
+      .forEach(function(k){s[k]=v(k);});
+    s.ticker=v("ticker").split("\n").map(function(x){return x.trim();}).filter(Boolean);
+    s.name=(s.wordmarkA||"")+" "+(s.wordmarkB||"");
+    markDirty(); closeEditor(); toast("Settings applied — remember to Save");
+  }
+
+  // ---- top actions ----
+  document.getElementById("btn-add").addEventListener("click",function(){openEditor(null);});
+  document.getElementById("btn-settings").addEventListener("click",openSettings);
+  document.getElementById("btn-save").addEventListener("click",function(){
+    try{
+      localStorage.setItem(STORE_KEY,JSON.stringify(db));
+      dirty=false;document.getElementById("dirty-note").style.display="none";
+      toast("Saved on this device");
+    }catch(e){alert("Could not save: storage may be full (embedded images are large). Use image filenames in /images instead of uploads.");}
+  });
+  document.getElementById("btn-export").addEventListener("click",function(){
+    var txt="// data.js — single source of truth for the DUBEL ART catalogue.\n"+
+      "// Edit via admin.html, then Export this file and re-upload to publish.\n"+
+      "window.SITE = "+JSON.stringify(db.site,null,2)+";\n\n"+
+      "window.ARTWORKS = "+JSON.stringify(db.works,null,2)+";\n";
+    var blob=new Blob([txt],{type:"text/javascript"});
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="data.js";a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+    toast("data.js exported — upload it to your server");
+  });
+  document.getElementById("btn-import").addEventListener("click",function(){document.getElementById("import-file").click();});
+  document.getElementById("import-file").addEventListener("change",function(e){
+    var f=e.target.files[0];if(!f)return;
+    var r=new FileReader();
+    r.onload=function(ev){
+      var text=ev.target.result, imported=null;
+      try{
+        if(/window\.(SITE|ARTWORKS)/.test(text)){
+          var fake={}; (new Function("window",text))(fake);
+          imported={site:fake.SITE||db.site, works:fake.ARTWORKS||[]};
+        }else{
+          var p=JSON.parse(text);
+          imported = p.works ? p : {site:db.site, works:p};
+        }
+      }catch(err){alert("Could not read that file. Use an exported data.js or a JSON file.");return;}
+      if(!imported||!imported.works){alert("No works found in that file.");return;}
+      db=imported; markDirty(); renderList(); toast("Imported "+imported.works.length+" works — review, then Save");
+    };
+    r.readAsText(f); e.target.value="";
+  });
+
+  window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
+})();
+</script>
+</body>
+</html>

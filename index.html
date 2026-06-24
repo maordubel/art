@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DUBEL ART — Modern & Contemporary, Private Sale</title>
+<meta name="description" content="A curated group of modern and contemporary paintings, prints and sculpture available for private sale.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="site-chrome"></div>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero__eyebrow">
+        <span class="dot"></span>
+        <span id="hero-eyebrow"></span>
+        <span class="rule"></span>
+      </div>
+      <div class="hero__grid">
+        <h1 class="hero__head">
+          <span class="l1" id="hl1"></span><br>
+          <span class="l2" id="hl2"></span><br>
+          <span class="l3" id="hl3"></span>
+        </h1>
+        <div class="hero__aside">
+          <p class="hero__statement" id="hero-statement"></p>
+          <p class="hero__body" id="hero-body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="collection">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">The Collection</h2>
+        <span class="section__count" id="count"></span>
+      </div>
+      <div class="filters" id="filters" role="group" aria-label="Filter works">
+        <button class="chip" data-filter="all" aria-pressed="true">All works</button>
+        <button class="chip" data-filter="available" aria-pressed="false">Available</button>
+        <button class="chip" data-filter="reserved" aria-pressed="false">Reserved</button>
+        <button class="chip" data-filter="sold" aria-pressed="false">Sold</button>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="wrap">
+      <div class="section__head"><h2 class="section__title">About</h2></div>
+      <div class="cols2">
+        <p class="hero__body" style="font-size:19px">A private collection of modern and contemporary art assembled across Europe and the United States — early-twentieth-century modernism, post-war abstraction, and contemporary mixed-media and sculpture.</p>
+        <p style="font-family:var(--serif);font-style:italic;font-size:18px;color:var(--ink-soft)">Every work is offered with documented provenance and, where available, exhibition and publication history. Condition reports, additional images and shipping quotes are available on request. To arrange a viewing or reserve a work, please get in touch.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  var D = window.DubelArt;
+  var data = D.loadData();
+  var site = data.site, works = data.works;
+  D.mountChrome(site);
+
+  // hero copy
+  function set(id,v){var n=document.getElementById(id); if(n) n.textContent=v||"";}
+  set("hero-eyebrow", site.heroEyebrow);
+  set("hl1", site.heroLine1); set("hl2", site.heroLine2); set("hl3", site.heroLine3);
+  set("hero-statement", site.heroStatement);
+  set("hero-body", site.heroBody);
+
+  var grid = document.getElementById("grid");
+  var countEl = document.getElementById("count");
+  var current = "all";
+
+  function cardHtml(w){
+    var st = D.statusInfo(w);
+    var tagClass = st.key==="sold" ? "card__tag--sold" : st.key==="reserved" ? "card__tag--reserved" : "";
+    var href = "artwork.html?id=" + encodeURIComponent(w.slug || w.id);
+    var yr = w.year ? " <span class='yr'>, "+D.esc(w.year)+"</span>" : "";
+    return (
+      "<article class='card "+(st.key==="sold"?"card--sold":"")+"'>"+
+        "<a href='"+href+"'>"+
+          "<div class='card__frame'>"+
+            "<span class='card__tag "+tagClass+"'>"+st.label+"</span>"+
+            "<img loading='lazy' src='"+D.esc(w.thumb||w.image)+"' alt='"+D.esc(w.artist+", "+w.title)+"'>"+
+          "</div>"+
+          "<div class='card__meta'>"+
+            "<div class='card__artist'>"+D.esc(w.artist)+"</div>"+
+            "<div class='card__title'>"+D.esc(w.title)+yr+"</div>"+
+            "<div class='card__spec'>"+D.esc([w.medium,w.dimensions].filter(Boolean).join(" · "))+"</div>"+
+            "<div class='card__price'><span class='lbl'>"+(w.priceMode==="on_request"?"":"Guide")+"</span>"+D.esc(D.priceText(w))+"</div>"+
+          "</div>"+
+        "</a>"+
+      "</article>"
+    );
+  }
+
+  function render(){
+    var list = works.filter(function(w){
+      if(current==="all") return true;
+      return (w.status||"available")===current;
+    });
+    countEl.textContent = works.length + " works · " +
+      works.filter(function(w){return (w.status||"available")==="available";}).length + " available";
+    grid.innerHTML = list.length ? list.map(cardHtml).join("") :
+      "<div class='empty'>No works in this category right now.</div>";
+  }
+
+  document.getElementById("filters").addEventListener("click", function(e){
+    var b = e.target.closest(".chip"); if(!b) return;
+    current = b.getAttribute("data-filter");
+    [].forEach.call(this.querySelectorAll(".chip"), function(c){
+      c.setAttribute("aria-pressed", c===b ? "true":"false");
+    });
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
