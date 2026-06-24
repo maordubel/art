@@ -87,6 +87,7 @@
             "<a class='btn btn--block btn--ghost' href='contact.html?work="+encodeURIComponent(w.slug||w.id)+"'>Join the waiting list</a>":
             "")) +
         "<dl class='spec-list'>"+spec+"</dl>"+
+        (site.priceNote ? "<p class='panel__note'>"+D.esc(site.priceNote)+"</p>" : "")+
       "</aside>"+
     "</div>"+
     block("About the work", w.description ? "<p>"+D.esc(w.description)+"</p>" : "") +

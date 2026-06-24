@@ -26,6 +26,7 @@
     <div class="contact__intro">
       <p class="hero__body">Tell us which work interests you and how best to reach you. A member of the Dubel Team Art Department will respond personally with availability, condition reports and acquisition details. All enquiries are handled in confidence.</p>
       <div id="work-card"></div>
+      <p class="form__note" id="price-note" style="margin-top:20px"></p>
     </div>
 
     <div>
@@ -107,6 +108,9 @@ if(!window.URLSearchParams){window.URLSearchParams=function(q){q=(q||"").replace
   }
   sel.addEventListener("change", renderCard);
   renderCard();
+
+  var pn = document.getElementById("price-note");
+  if (pn && site.priceNote) pn.textContent = site.priceNote;
 
   var form = document.getElementById("enquiry");
   var msg  = document.getElementById("msg");

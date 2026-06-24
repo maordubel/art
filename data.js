@@ -28,7 +28,8 @@ window.SITE = {
   "currencyDefault": "EUR",
   "formProvider": "web3forms",
   "formEndpoint": "https://api.web3forms.com/submit",
-  "formAccessKey": ""
+  "formAccessKey": "",
+  "priceNote": "All prices are in EUR and exclude shipping, handling, insurance and any taxes or import duties. Final pricing may vary with the buyer's location and local tax treatment."
 };
 
 window.ARTWORKS = [
@@ -442,5 +443,86 @@ window.ARTWORKS = [
     "image": "images/makarevich-seagull.jpg",
     "thumb": "images/makarevich-seagull-thumb.jpg",
     "id": 14
+  },
+  {
+    "slug": "boem",
+    "artist": "BOEM",
+    "title": "Continuous Line",
+    "year": "2020",
+    "medium": "Spray paint & acrylic, framed",
+    "dimensions": "",
+    "framed": "",
+    "edition": "",
+    "price": "€1,500",
+    "priceSort": 1500,
+    "priceMode": "value",
+    "status": "available",
+    "featured": false,
+    "signature": "",
+    "condition": "",
+    "description": "A bold contemporary work in which a single, unbroken black line traces an abstracted face. Set against a sprayed wash of pink, ochre and white, the composition is punctuated by a vivid red mouth, a single stylised eye and a raised hand — a meeting of graffiti energy and continuous-line drawing. Presented in a vintage gilt frame.",
+    "provenance": [
+      "Dubel Team — Art Department"
+    ],
+    "exhibitions": [],
+    "publications": [],
+    "internalNote": "",
+    "image": "images/boem.jpg",
+    "thumb": "images/boem-thumb.jpg",
+    "id": 15
+  },
+  {
+    "slug": "mauro",
+    "artist": "MAURO",
+    "title": "City Muse",
+    "year": "2025",
+    "medium": "Acrylic on canvas",
+    "dimensions": "",
+    "framed": "",
+    "edition": "",
+    "price": "€800",
+    "priceSort": 800,
+    "priceMode": "value",
+    "status": "available",
+    "featured": false,
+    "signature": "",
+    "condition": "",
+    "description": "A vibrant figurative composition centred on a woman with a full afro and oversized gold hoop earrings, her gaze direct and self-possessed. Behind her rises an expressionistic city of saturated towers and bridges, with a small seated figure at the right edge. The naïve, high-colour handling recalls outsider and neo-expressionist painting.",
+    "provenance": [
+      "Dubel Team — Art Department"
+    ],
+    "exhibitions": [],
+    "publications": [],
+    "internalNote": "",
+    "image": "images/mauro.jpg",
+    "thumb": "images/mauro-thumb.jpg",
+    "id": 16
+  },
+  {
+    "slug": "pngs",
+    "artist": "PNGS",
+    "title": "Fracture",
+    "year": "2018",
+    "medium": "Acrylic, spray paint & mixed media on canvas",
+    "dimensions": "",
+    "framed": "",
+    "edition": "",
+    "price": "€1,500",
+    "priceSort": 1500,
+    "priceMode": "value",
+    "status": "available",
+    "featured": false,
+    "signature": "Signed lower left, “PNGS”",
+    "condition": "",
+    "description": "A brooding mixed-media portrait of a hooded figure whose face dissolves into a shattered, mosaic-like burst of metallic and coloured fragments. Drips of white and washes of black and blue lend a weathered, urban surface, playing on themes of identity, anonymity and fragmentation.",
+    "provenance": [
+      "Dubel Team — Art Department"
+    ],
+    "exhibitions": [],
+    "publications": [],
+    "internalNote": "",
+    "image": "images/pngs.jpg",
+    "thumb": "images/pngs-thumb.jpg",
+    "id": 17
   }
 ];

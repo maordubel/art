@@ -330,6 +330,7 @@
       "<div class='f3'>"+field("Hero line 1","heroLine1",s.heroLine1)+field("Hero line 2","heroLine2",s.heroLine2)+field("Hero line 3 (red)","heroLine3",s.heroLine3)+"</div>"+
       field("Hero statement","heroStatement",s.heroStatement,{type:"textarea"})+
       field("Hero body","heroBody",s.heroBody,{type:"textarea"})+
+      field("Price / shipping note (shown on each work)","priceNote",s.priceNote,{type:"textarea"})+
       field("Admin passcode","adminPass",s.adminPass,{hint:"Note: this is light protection only. For real security, password-protect admin.html on your hosting."});
     sheet.classList.add("open");
   }
@@ -337,7 +338,7 @@
     var body=document.getElementById("editor-body");
     function v(n){var el=body.querySelector("[name="+n+"]");return el?el.value.trim():"";}
     var s=db.site;
-    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","adminPass"]
+    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","priceNote","adminPass"]
       .forEach(function(k){s[k]=v(k);});
     s.ticker=v("ticker").split("\n").map(function(x){return x.trim();}).filter(Boolean);
     s.name=(s.wordmarkA||"")+" "+(s.wordmarkB||"");

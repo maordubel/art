@@ -26,3 +26,5 @@ CONTACT FORM  (IMPORTANT — one-time setup so enquiries reach your inbox)
 
 PRICING
   All prices are shown in EUR as the "Asking price".
+  A note states prices exclude shipping, handling, insurance, taxes and duties
+  (editable in admin -> Site Settings -> "Price / shipping note").
