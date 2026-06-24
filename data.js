@@ -31,7 +31,7 @@ window.SITE = {
   "formAccessKey": "",
   "priceNote": "All prices are in EUR and exclude shipping, handling, insurance and any taxes or import duties. Final pricing may vary with the buyer's location and local tax treatment.",
   "priceHiddenLabel": "Contact for price",
-  "dataVersion": 1782297237945,
+  "dataVersion": 1782297796894,
   "logo": "images/logo.png",
   "analyticsId": ""
 };
@@ -143,7 +143,7 @@ window.ARTWORKS = [
       "Dubel Team — Art Department"
     ],
     "status": "available",
-    "priceMode": "on_request",
+    "priceMode": "value",
     "exhibitions": [],
     "publications": [],
     "framed": "",
@@ -171,13 +171,14 @@ window.ARTWORKS = [
     ],
     "exhibitions": [],
     "status": "available",
-    "priceMode": "on_request",
+    "priceMode": "value",
     "featured": false,
     "publications": [],
     "framed": "",
     "image": "images/denny-ripped.jpg",
     "thumb": "images/denny-ripped-thumb.jpg",
-    "id": 5
+    "id": 5,
+    "edition": ""
   },
   {
     "slug": "chabaud-autour-de-la-table",
@@ -459,7 +460,7 @@ window.ARTWORKS = [
     "edition": "",
     "price": "€1,500",
     "priceSort": 1500,
-    "priceMode": "on_request",
+    "priceMode": "value",
     "status": "available",
     "featured": false,
     "signature": "",
@@ -486,7 +487,7 @@ window.ARTWORKS = [
     "edition": "",
     "price": "€800",
     "priceSort": 800,
-    "priceMode": "on_request",
+    "priceMode": "value",
     "status": "available",
     "featured": false,
     "signature": "",
@@ -513,7 +514,7 @@ window.ARTWORKS = [
     "edition": "",
     "price": "€1,500",
     "priceSort": 1500,
-    "priceMode": "on_request",
+    "priceMode": "value",
     "status": "available",
     "featured": false,
     "signature": "Signed lower left, “PNGS”",
