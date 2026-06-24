@@ -97,6 +97,19 @@
     );
   }
 
+  function injectAnalytics(site) {
+    var id = site && site.analyticsId;
+    if (!id || !/^G-[A-Z0-9]+$/i.test(id) || window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    var s = document.createElement("script");
+    s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(id);
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag("js", new Date());
+    window.gtag("config", id);
+  }
+
   function mountChrome(site) {
     var head = document.getElementById("site-chrome");
     if (head) head.innerHTML = tickerHtml(site) + headerHtml(site);
@@ -111,6 +124,7 @@
         btn.setAttribute("aria-expanded", open ? "true" : "false");
       });
     }
+    injectAnalytics(site);
   }
 
   window.DubelArt = {

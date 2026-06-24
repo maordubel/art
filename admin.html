@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17120b">
 <title>Manage catalogue — DUBEL ART</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="styles.css?v=4">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="images/logo.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -98,6 +99,16 @@
   .ie__btns{display:flex;gap:8px;flex-wrap:wrap}
   .ie__foot{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line)}
   .mini--dark{border-color:var(--ink);color:var(--ink)} .mini--dark:hover{background:var(--ink);color:var(--paper)}
+  .pricetog{font-family:var(--util);font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    border:1.5px solid var(--line-strong);background:transparent;border-radius:2px;padding:4px 9px;cursor:pointer;transition:.15s;margin-left:2px}
+  .pricetog--on{border-color:var(--green);color:var(--green)}
+  .pricetog--off{border-color:var(--muted);color:var(--muted)}
+  .pricetog:hover{border-color:var(--ink);color:var(--ink)}
+  .adm-bulk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 16px}
+  .adm-bulk .lbl{font-family:var(--util);font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+  .adm-bulk button{font-family:var(--util);font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:8px 13px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:2px;cursor:pointer}
+  .adm-bulk button:hover{background:var(--ink);color:var(--paper)}
+  .adm-bulk__hint{color:var(--muted);font-family:var(--serif);font-style:italic;font-size:13px}
 </style>
 </head>
 <body>
@@ -141,6 +152,12 @@
       The public site (on every device — desktop, phone, tablet) always shows the published <code>data.js</code>.
       To make changes live for <b>everyone</b>: click <b>Export data.js</b> and upload it to your server, replacing the old <code>data.js</code>.
       For best performance, place image files in the <code>/images</code> folder and reference them by filename.
+    </div>
+    <div class="adm-bulk">
+      <span class="lbl">Prices</span>
+      <button id="btn-hideall">Hide all</button>
+      <button id="btn-showall">Show all</button>
+      <span class="adm-bulk__hint">Default is hidden (visitors see “Contact for price”). Click a work’s price chip to show just that one.</span>
     </div>
     <div class="adm-grid" id="list"></div>
   </main>
@@ -200,7 +217,7 @@
 
 
 <script src="data.js"></script>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 <script>
 (function(){
   var STORE_KEY = "dubelart_data_v1";
@@ -263,7 +280,9 @@
           "<div class='a'>"+esc(w.artist)+"</div>"+
           "<div class='t'>"+esc(w.title)+(w.year?", "+esc(w.year):"")+"</div>"+
           "<div class='s'><span class='badge badge--"+st.key+"'>"+st.label+"</span>"+
-            esc(w.priceMode==="on_request"?"Hidden · Contact for price":(w.price||"—"))+"</div>"+
+            "<button class='pricetog "+(w.priceMode==="on_request"?"pricetog--off":"pricetog--on")+"' data-toggleprice='"+i+"' title='Click to show or hide this price'>"+
+              (w.priceMode==="on_request" ? "Price hidden" : ("Price shown · "+esc(w.price||"—")))+
+            "</button></div>"+
         "</div>"+
         "<div class='row__ctrl'>"+
           "<button class='icon' data-up='"+i+"' title='Move up' aria-label='Move up'>&#8593;</button>"+
@@ -278,6 +297,7 @@
   document.getElementById("list").addEventListener("click",function(e){
     var b=e.target.closest("button"); if(!b)return;
     var i;
+    if(b.hasAttribute("data-toggleprice")){i=+b.getAttribute("data-toggleprice");db.works[i].priceMode=(db.works[i].priceMode==="on_request")?"value":"on_request";markDirty();renderList();return;}
     if(b.hasAttribute("data-edit")){openEditor(+b.getAttribute("data-edit"));return;}
     if(b.hasAttribute("data-up")){i=+b.getAttribute("data-up"); if(i>0){var t=db.works[i-1];db.works[i-1]=db.works[i];db.works[i]=t;markDirty();renderList();}return;}
     if(b.hasAttribute("data-down")){i=+b.getAttribute("data-down"); if(i<db.works.length-1){var t2=db.works[i+1];db.works[i+1]=db.works[i];db.works[i]=t2;markDirty();renderList();}return;}
@@ -416,6 +436,7 @@
       field("Hero body","heroBody",s.heroBody,{type:"textarea"})+
       field("Price / shipping note (shown on each work)","priceNote",s.priceNote,{type:"textarea"})+
       field("Hidden-price label","priceHiddenLabel",s.priceHiddenLabel,{hint:"Shown in place of the price when a work\u2019s price is hidden (e.g. \u201cContact for price\u201d, \u201cPrice on request\u201d)."})+
+      field("Visitor analytics — Google Analytics ID (optional)","analyticsId",s.analyticsId,{hint:"Paste a GA4 ID like G-XXXXXXXXXX to count visits per page. Leave blank for none. In the EU a cookie/consent notice may be required."})+
       field("Admin passcode","adminPass",s.adminPass,{hint:"Note: this is light protection only. For real security, password-protect admin.html on your hosting."});
     sheet.classList.add("open");
   }
@@ -423,7 +444,7 @@
     var body=document.getElementById("editor-body");
     function v(n){var el=body.querySelector("[name="+n+"]");return el?el.value.trim():"";}
     var s=db.site;
-    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","priceNote","priceHiddenLabel","adminPass"]
+    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","priceNote","priceHiddenLabel","analyticsId","adminPass"]
       .forEach(function(k){s[k]=v(k);});
     s.ticker=v("ticker").split("\n").map(function(x){return x.trim();}).filter(Boolean);
     s.name=(s.wordmarkA||"")+" "+(s.wordmarkB||"");
@@ -433,6 +454,10 @@
   // ---- top actions ----
   document.getElementById("btn-add").addEventListener("click",function(){openEditor(null);});
   document.getElementById("btn-settings").addEventListener("click",openSettings);
+  document.getElementById("btn-hideall").addEventListener("click",function(){
+    db.works.forEach(function(w){w.priceMode="on_request";});markDirty();renderList();toast("All prices hidden");});
+  document.getElementById("btn-showall").addEventListener("click",function(){
+    db.works.forEach(function(w){w.priceMode="value";});markDirty();renderList();toast("All prices shown");});
   document.getElementById("btn-save").addEventListener("click",function(){
     try{
       localStorage.setItem(STORE_KEY,JSON.stringify(db));
