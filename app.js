@@ -66,7 +66,7 @@
     return (
       '<header class="site-header"><div class="wrap">' +
         '<a class="brand" href="index.html">' +
-          '<span class="brand__mark">' + esc(monogram) + "</span>" +
+          "<span class='brand__mark brand__mark--logo'><img src='" + esc(site.logo || "images/logo.png") + "' alt='" + esc(site.name || "DUBEL TEAM") + "' onerror=\"this.parentNode.classList.remove('brand__mark--logo');this.parentNode.textContent='" + esc(monogram) + "'\"></span>" +
           "<span><span class='brand__name'>" + esc(site.wordmarkA || "DUBEL") + " <b>" + esc(site.wordmarkB || "ART") + "</b></span>" +
           "<span class='brand__tag'>" + esc(site.tagline || "") + "</span></span>" +
         "</a>" +
@@ -85,7 +85,8 @@
     return (
       '<footer class="site-footer" id="contact"><div class="wrap">' +
         '<div class="foot__grid">' +
-          "<div><div class='foot__name'>" + esc(site.wordmarkA || "DUBEL") + " <b>" + esc(site.wordmarkB || "ART") + "</b></div>" +
+          "<div><img class='foot__logo' src='" + esc(site.logo || "images/logo.png") + "' alt='' onerror=\"this.style.display='none'\">" +
+            "<div class='foot__name'>" + esc(site.wordmarkA || "DUBEL") + " <b>" + esc(site.wordmarkB || "ART") + "</b></div>" +
             "<div class='foot__tag'>" + esc(site.tagline || "") + "</div></div>" +
           "<div><p class='foot__h'>Enquiries</p>" +
             "<p><a href='contact.html'>Make an enquiry &rarr;</a></p>" +

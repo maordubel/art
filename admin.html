@@ -8,6 +8,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="images/logo.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
 <style>
   .adm-top{background:var(--ink);color:var(--paper);border-bottom:2px solid var(--red)}
   .adm-top .wrap{display:flex;align-items:center;gap:18px;height:70px}
@@ -101,7 +105,7 @@
 <!-- passcode gate -->
 <div class="gate" id="gate">
   <div class="gate__box">
-    <div class="brand__mark">DA</div>
+    <div class="brand__mark brand__mark--logo" style="width:84px;height:84px"><img src="images/logo.png" alt="DUBEL TEAM" onerror="this.parentNode.classList.remove('brand__mark--logo');this.parentNode.textContent='DA'"></div>
     <h1>Catalogue Admin</h1>
     <p>Enter the management passcode</p>
     <div class="err" id="gate-err"></div>
@@ -114,6 +118,7 @@
 
 <div id="app" style="display:none">
   <div class="adm-top"><div class="wrap">
+    <img src="images/logo.png" alt="DUBEL TEAM" style="width:46px;height:46px;object-fit:contain" onerror="this.style.display='none'">
     <span class="name">DUBEL <b>ART</b></span>
     <span class="tag">Catalogue Manager</span>
     <div class="adm-actions">
