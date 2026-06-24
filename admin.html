@@ -96,6 +96,7 @@
       <button class="mini" id="btn-settings">Site settings</button>
       <button class="mini" id="btn-add">+ Add work</button>
       <button class="mini" id="btn-import">Import</button>
+      <button class="mini" id="btn-reset">Reset to published file</button>
       <button class="mini" id="btn-export">Export data.js</button>
       <button class="mini mini--red" id="btn-save">Save changes</button>
       <a class="mini" href="index.html" target="_blank">View site ↗</a>
@@ -143,7 +144,22 @@
 
   function clone(o){return JSON.parse(JSON.stringify(o));}
   function load(){
-    try{var raw=localStorage.getItem(STORE_KEY); if(raw){var p=JSON.parse(raw); if(p&&p.works) return p;}}catch(e){}
+    try{
+      var raw=localStorage.getItem(STORE_KEY);
+      if(raw){
+        var p=JSON.parse(raw);
+        if(p&&p.works){
+          var fileV =(SEED.site && +SEED.site.dataVersion)||0;
+          var savedV=(p.site   && +p.site.dataVersion)||0;
+          if(fileV>savedV){
+            // published data.js is newer than this device's saved copy — use the file
+            try{localStorage.setItem(STORE_KEY,JSON.stringify(SEED));}catch(e2){}
+            return clone(SEED);
+          }
+          return p;
+        }
+      }
+    }catch(e){}
     return clone(SEED);
   }
   function esc(s){return window.DubelArt.esc(s);}
@@ -357,6 +373,8 @@
     }catch(e){alert("Could not save: storage may be full (embedded images are large). Use image filenames in /images instead of uploads.");}
   });
   document.getElementById("btn-export").addEventListener("click",function(){
+    db.site.dataVersion=Date.now();                 // mark this publish as the newest everywhere
+    try{localStorage.setItem(STORE_KEY,JSON.stringify(db));}catch(e){}
     var txt="// data.js — single source of truth for the DUBEL ART catalogue.\n"+
       "// Edit via admin.html, then Export this file and re-upload to publish.\n"+
       "window.SITE = "+JSON.stringify(db.site,null,2)+";\n\n"+
@@ -365,6 +383,13 @@
     var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="data.js";a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
     toast("data.js exported — upload it to your server");
+  });
+  document.getElementById("btn-reset").addEventListener("click",function(){
+    if(dirty && !confirm("You have unsaved changes that will be discarded. Reset this device to the published data.js?")) return;
+    if(!dirty && !confirm("Discard this device's saved copy and reload everything from the published data.js?")) return;
+    try{localStorage.removeItem(STORE_KEY);}catch(e){}
+    db=clone(SEED); dirty=false; document.getElementById("dirty-note").style.display="none";
+    closeEditor(); renderList(); toast("Reset — now showing "+db.works.length+" works from data.js");
   });
   document.getElementById("btn-import").addEventListener("click",function(){document.getElementById("import-file").click();});
   document.getElementById("import-file").addEventListener("change",function(e){
