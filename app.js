@@ -4,18 +4,25 @@
 (function () {
   "use strict";
   var STORE_KEY = "dubelart_data_v1";
+  var loadedSite = null;
 
   // --- data loading: localStorage override (admin edits on this device) > seed (data.js)
   function loadData() {
     var seed = { site: window.SITE || {}, works: window.ARTWORKS || [] };
+    var data = seed;
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
-        if (parsed && parsed.works) return parsed;
+        if (parsed && parsed.works) data = parsed;
       }
     } catch (e) { /* sandbox / disabled storage — fall back to seed */ }
-    return seed;
+    loadedSite = data.site || {};
+    return data;
+  }
+
+  function hiddenPriceLabel() {
+    return (loadedSite && loadedSite.priceHiddenLabel) || (window.SITE && window.SITE.priceHiddenLabel) || "Contact for price";
   }
 
   function esc(s) {
@@ -33,7 +40,7 @@
 
   function priceText(w) {
     if (w.priceMode === "sold" || (w.status || "") === "sold") return "Sold";
-    if (w.priceMode === "on_request" || !w.price) return "Price on request";
+    if (w.priceMode === "on_request" || !w.price) return hiddenPriceLabel();
     return w.price;
   }
 

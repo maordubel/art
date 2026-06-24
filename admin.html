@@ -182,7 +182,7 @@
           "<div class='a'>"+esc(w.artist)+"</div>"+
           "<div class='t'>"+esc(w.title)+(w.year?", "+esc(w.year):"")+"</div>"+
           "<div class='s'><span class='badge badge--"+st.key+"'>"+st.label+"</span>"+
-            esc(w.priceMode==="on_request"?"Price on request":(w.price||"—"))+"</div>"+
+            esc(w.priceMode==="on_request"?"Hidden · Contact for price":(w.price||"—"))+"</div>"+
         "</div>"+
         "<div class='row__ctrl'>"+
           "<button class='icon' data-up='"+i+"' title='Move up' aria-label='Move up'>&#8593;</button>"+
@@ -242,7 +242,7 @@
       "<div class='f2'>"+field("Framed size","framed",w.framed)+field("Edition","edition",w.edition)+"</div>"+
       "<div class='f2'>"+
         field("Asking price","price",w.price,{hint:"Euro only, single figure, e.g. €5,500"})+
-        field("Price mode","priceMode",w.priceMode,{type:"select",options:[["value","Show price"],["on_request","Price on request"]]})+
+        field("Price visibility","priceMode",w.priceMode,{type:"select",options:[["value","Show price"],["on_request","Hide price — show \u201cContact for price\u201d"]]})+
       "</div>"+
       "<div class='f2'>"+field("Signature","signature",w.signature)+field("Condition","condition",w.condition)+"</div>"+
       field("Description","description",w.description,{type:"textarea"})+
@@ -331,6 +331,7 @@
       field("Hero statement","heroStatement",s.heroStatement,{type:"textarea"})+
       field("Hero body","heroBody",s.heroBody,{type:"textarea"})+
       field("Price / shipping note (shown on each work)","priceNote",s.priceNote,{type:"textarea"})+
+      field("Hidden-price label","priceHiddenLabel",s.priceHiddenLabel,{hint:"Shown in place of the price when a work\u2019s price is hidden (e.g. \u201cContact for price\u201d, \u201cPrice on request\u201d)."})+
       field("Admin passcode","adminPass",s.adminPass,{hint:"Note: this is light protection only. For real security, password-protect admin.html on your hosting."});
     sheet.classList.add("open");
   }
@@ -338,7 +339,7 @@
     var body=document.getElementById("editor-body");
     function v(n){var el=body.querySelector("[name="+n+"]");return el?el.value.trim():"";}
     var s=db.site;
-    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","priceNote","adminPass"]
+    ["wordmarkA","wordmarkB","tagline","url","formAccessKey","heroEyebrow","heroLine1","heroLine2","heroLine3","heroStatement","heroBody","priceNote","priceHiddenLabel","adminPass"]
       .forEach(function(k){s[k]=v(k);});
     s.ticker=v("ticker").split("\n").map(function(x){return x.trim();}).filter(Boolean);
     s.name=(s.wordmarkA||"")+" "+(s.wordmarkB||"");

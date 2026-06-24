@@ -65,8 +65,7 @@
   row("Signature", w.signature);
   row("Condition", w.condition);
 
-  var priceBig = (w.priceMode==="on_request") ? "Price on request" :
-                 (st.key==="sold") ? "Sold" : (w.price || "Price on request");
+  var priceBig = D.priceText(w);
 
   root.innerHTML =
     "<div class='work__hero'>"+
