@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=3">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="images/logo.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -128,7 +128,7 @@
       <button class="mini" id="btn-reset">Reset to published file</button>
       <button class="mini" id="btn-export">Export data.js</button>
       <button class="mini mini--red" id="btn-save">Save changes</button>
-      <a class="mini" href="index.html" target="_blank">View site ↗</a>
+      <a class="mini" href="index.html?preview=1" target="_blank">Preview my edits ↗</a>
     </div>
   </div></div>
 
@@ -137,9 +137,10 @@
       <b>Unsaved changes.</b> Click <b>Save changes</b> to store them on this device, then <b>Export data.js</b> and upload it to your server to publish for everyone.
     </div>
     <div class="adm-note">
-      <b>How publishing works.</b> Edits are saved in this browser so you can preview them on the live URL here.
-      To make changes visible to <b>all visitors</b>, click <b>Export data.js</b> and replace the <code>data.js</code> file on your server.
-      Uploaded images are embedded for preview — for best performance, place image files in the <code>/images</code> folder and reference them by filename.
+      <b>How publishing works.</b> <b>Save changes</b> stores your edits in this browser only — use <b>Preview my edits</b> to see them.
+      The public site (on every device — desktop, phone, tablet) always shows the published <code>data.js</code>.
+      To make changes live for <b>everyone</b>: click <b>Export data.js</b> and upload it to your server, replacing the old <code>data.js</code>.
+      For best performance, place image files in the <code>/images</code> folder and reference them by filename.
     </div>
     <div class="adm-grid" id="list"></div>
   </main>
@@ -199,7 +200,7 @@
 
 
 <script src="data.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=3"></script>
 <script>
 (function(){
   var STORE_KEY = "dubelart_data_v1";

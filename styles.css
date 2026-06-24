@@ -73,10 +73,16 @@ button{font-family:inherit;cursor:pointer}
 
 /* ---------- header ---------- */
 .site-header{
-  position:sticky;top:0;z-index:50;
-  background:color-mix(in srgb,var(--paper) 88%, transparent);
-  backdrop-filter:blur(8px);
+  position:sticky;top:0;z-index:60;
+  background:rgba(231,225,210,.94);
   border-bottom:1px solid var(--line);
+}
+@supports ((backdrop-filter:blur(8px)) or (-webkit-backdrop-filter:blur(8px))){
+  .site-header{
+    background:color-mix(in srgb,var(--paper) 88%, transparent);
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+  }
 }
 .site-header .wrap{display:flex;align-items:center;gap:22px;height:84px}
 .brand{display:flex;align-items:center;gap:14px;margin-right:auto}
@@ -235,12 +241,18 @@ button{font-family:inherit;cursor:pointer}
 }
 @media(max-width:620px){
   .wrap{padding:0 18px}
-  .nav{position:fixed;inset:84px 0 auto 0;background:var(--paper);flex-direction:column;align-items:flex-start;
-    gap:0;padding:8px 18px 18px;border-bottom:1px solid var(--line);transform:translateY(-130%);transition:transform .3s ease}
-  .nav.open{transform:translateY(0)}
+  .site-header .wrap{height:64px;gap:12px}
+  .brand{gap:10px}
+  .brand__mark--logo{width:40px;height:40px}
+  .brand__name{font-size:19px}
+  .brand__tag{font-size:11px;margin-top:1px}
+  .nav{position:absolute;top:100%;left:0;right:0;background:var(--paper);flex-direction:column;align-items:stretch;
+    gap:0;padding:8px 18px 16px;border-bottom:1px solid var(--line);box-shadow:0 18px 30px -18px rgba(23,18,11,.5);
+    transform:translateY(-12px);opacity:0;visibility:hidden;transition:transform .25s ease,opacity .25s ease,visibility .25s;z-index:60}
+  .nav.open{transform:translateY(0);opacity:1;visibility:visible}
   .nav a{padding:14px 0;width:100%;border-bottom:1px solid var(--line);font-size:14px}
-  .nav .btn{margin-top:12px}
-  .nav-toggle{display:grid;place-items:center;width:42px;height:42px;border:1.5px solid var(--ink);background:transparent;border-radius:2px}
+  .nav .btn{margin-top:12px;width:100%;text-align:center;padding:15px}
+  .nav-toggle{display:grid;place-items:center;width:42px;height:42px;border:1.5px solid var(--ink);background:transparent;border-radius:2px;flex:0 0 auto}
   .grid{grid-template-columns:1fr;gap:26px}
   .cols2{grid-template-columns:1fr}
   .foot__grid{grid-template-columns:1fr}

@@ -9,24 +9,19 @@
   // --- data loading: localStorage override (admin edits on this device) > seed (data.js)
   function loadData() {
     var seed = { site: window.SITE || {}, works: window.ARTWORKS || [] };
+    var preview = false;
+    try { preview = /[?&]preview=1(\b|&|$)/.test(location.search); } catch (e) {}
+    if (!preview) {
+      // PUBLIC: the published data.js is the single source of truth for every device.
+      loadedSite = seed.site || {};
+      return seed;
+    }
+    // PREVIEW mode (admin "View site"): show this device's unpublished local edits.
     var data = seed;
     try {
       var raw = localStorage.getItem(STORE_KEY);
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        if (parsed && parsed.works) {
-          var fileV  = (seed.site   && +seed.site.dataVersion)   || 0;
-          var savedV = (parsed.site && +parsed.site.dataVersion) || 0;
-          if (fileV > savedV) {
-            // a newer catalogue was published (data.js) — adopt it and refresh the local copy
-            data = seed;
-            try { localStorage.setItem(STORE_KEY, JSON.stringify(seed)); } catch (e2) {}
-          } else {
-            data = parsed;
-          }
-        }
-      }
-    } catch (e) { /* sandbox / disabled storage — fall back to seed */ }
+      if (raw) { var parsed = JSON.parse(raw); if (parsed && parsed.works) data = parsed; }
+    } catch (e2) {}
     loadedSite = data.site || {};
     return data;
   }
